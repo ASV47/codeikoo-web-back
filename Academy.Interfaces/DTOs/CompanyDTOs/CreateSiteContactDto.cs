@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SharedLayer.DTO
+{
+	public class CreateSiteContactDto
+	{
+		public string Type { get; set; } = default!;
+		public string Value { get; set; } = default!;
+		public string? Label { get; set; }
+	}
+}
