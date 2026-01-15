@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class UnitLessonConfig : IEntityTypeConfiguration<UnitLesson>
-    {
+    public class UnitLessonConfig : BaseConfiguration<Course, int>
+	{
         public void Configure(EntityTypeBuilder<UnitLesson> builder)
         {
             builder.ToTable("UnitLessons", AcademySchema.AcademyDBSchema);

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class CourseUnitConfig : IEntityTypeConfiguration<CourseUnit>
+    public class CourseUnitConfig : BaseConfiguration<Course, int>
     {
         public void Configure(EntityTypeBuilder<CourseUnit> builder)
         {

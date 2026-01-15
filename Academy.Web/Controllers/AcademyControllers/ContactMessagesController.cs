@@ -32,5 +32,14 @@ namespace Academy.Web.Controllers
 		[HttpGet("{id}")]
 		public async Task<ActionResult<ContactMessageDto?>> GetById(int id)
 		=> Ok(await _serviceManager.ContactMessageService.GetByIdAsync(id));
+
+
+		[HttpPut("{id}/restore")]
+		public async Task<ActionResult<bool>> Restore(int id)
+		{
+			var result = await _serviceManager.ContactMessageService.RestoreAsync(id);
+			return Ok(result);
+		}
+
 	}
 }

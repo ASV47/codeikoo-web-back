@@ -18,5 +18,6 @@ namespace Academy.Interfaces.IServices
 
 		Task<CourseDto> UpdateAsync(int id, CreateCourseDto dto);
 		Task DeleteAsync(int id);
+		Task RestoreAsync(int id);
 	}
 }

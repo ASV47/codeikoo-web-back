@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class CourseConfig : IEntityTypeConfiguration<Course>
+    public class CourseConfig : BaseConfiguration<Course, int>
     {
         public void Configure(EntityTypeBuilder<Course> builder)
         {
@@ -51,9 +51,6 @@ namespace Academy.Infrastructure.Configurations.AcademyConfigurations
                        v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                        v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new List<string>()
                    );
-
-
-
         }
     }
 }

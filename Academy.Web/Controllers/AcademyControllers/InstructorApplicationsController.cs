@@ -32,5 +32,13 @@ namespace Academy.Web.Controllers
 		[HttpGet("{id}")]
 		public async Task<ActionResult<InstructorApplicationDto?>> GetById(int id)
 	   => Ok(await _serviceManager.InstructorApplicationService.GetByIdAsync(id));
+
+		[HttpPut("{id}/restore")]
+		public async Task<ActionResult<bool>> Restore(int id)
+		{
+			var result = await _serviceManager.InstructorApplicationService.RestoreAsync(id);
+			return Ok(result);
+		}
+
 	}
 }

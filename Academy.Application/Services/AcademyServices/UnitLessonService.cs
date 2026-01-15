@@ -1,4 +1,5 @@
 ﻿using Academy.Infrastructure.Entities.AcademyEntities;
+using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
@@ -12,70 +13,104 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-    public class UnitLessonService(IUnitOfWork unitOfWork, IMapper mapper) : IUnitLessonService
-    {
-        public async Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto)
-        {
-            var unit = await unitOfWork.GetRepository<CourseUnit, int>().GetByIdAsync(dto.CourseUnitId);
-            if (unit is null) throw new ArgumentException("Course unit not found.");
+	public class UnitLessonService(IUnitOfWork unitOfWork, IMapper mapper) : IUnitLessonService
+	{
+		public async Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto)
+		{
+			// ✅ CourseUnit لازم يكون موجود ومش SoftDeleted
+			var unit = await unitOfWork.GetRepository<CourseUnit, int>()
+				.Query()
+				.AsNoTracking()
+				.FirstOrDefaultAsync(u => u.Id == dto.CourseUnitId && !u.IsDeleted);
 
-            var entity = mapper.Map<UnitLesson>(dto);
+			if (unit is null) throw new ArgumentException("Course unit not found.");
 
-            await unitOfWork.GetRepository<UnitLesson, int>().AddAsync(entity);
-            await unitOfWork.SaveChangesAsync();
+			var entity = mapper.Map<UnitLesson>(dto);
 
-            return mapper.Map<UnitLessonDto>(entity);
-        }
+			// ✅ Audit (Created)
+			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
-        public async Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null)
-        {
-            var query = unitOfWork.GetRepository<UnitLesson, int>()
-                .Query()
-                .AsNoTracking();
+			await unitOfWork.GetRepository<UnitLesson, int>().AddAsync(entity);
+			await unitOfWork.SaveChangesAsync();
 
-            if (courseUnitId.HasValue)
-                query = query.Where(l => l.CourseUnitId == courseUnitId.Value);
+			return mapper.Map<UnitLessonDto>(entity);
+		}
 
-            var entities = await query
-                .OrderByDescending(l => l.Id)
-                .ToListAsync();
+		public async Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null)
+		{
+			var query = unitOfWork.GetRepository<UnitLesson, int>()
+				.Query()
+				.AsNoTracking()
+				.Where(l => !l.IsDeleted); // ✅ SoftDelete filter
 
-            return mapper.Map<List<UnitLessonDto>>(entities);
-        }
+			if (courseUnitId.HasValue)
+				query = query.Where(l => l.CourseUnitId == courseUnitId.Value);
 
-        public async Task<UnitLessonDto> GetByIdAsync(int id)
-        {
-            var entity = await unitOfWork.GetRepository<UnitLesson, int>()
-                .Query()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
+			var entities = await query
+				.OrderByDescending(l => l.Id)
+				.ToListAsync();
 
-            if (entity is null) throw new ArgumentException("Lesson not found.");
-            return mapper.Map<UnitLessonDto>(entity);
-        }
+			return mapper.Map<List<UnitLessonDto>>(entities);
+		}
 
-        public async Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto)
-        {
-            var repo = unitOfWork.GetRepository<UnitLesson, int>();
-            var entity = await repo.GetByIdAsync(id);
-            if (entity is null) throw new ArgumentException("Lesson not found.");
+		public async Task<UnitLessonDto> GetByIdAsync(int id)
+		{
+			var entity = await unitOfWork.GetRepository<UnitLesson, int>()
+				.Query()
+				.AsNoTracking()
+				.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted); // ✅ SoftDelete filter
 
-            mapper.Map(dto, entity);
+			if (entity is null) throw new ArgumentException("Lesson not found.");
+			return mapper.Map<UnitLessonDto>(entity);
+		}
 
-            repo.Update(entity);
-            await unitOfWork.SaveChangesAsync();
+		public async Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto)
+		{
+			var repo = unitOfWork.GetRepository<UnitLesson, int>();
+			var entity = await repo.GetByIdAsync(id);
 
-            return mapper.Map<UnitLessonDto>(entity);
-        }
+			if (entity is null || entity.IsDeleted) throw new ArgumentException("Lesson not found.");
 
-        public async Task DeleteAsync(int id)
-        {
-            var repo = unitOfWork.GetRepository<UnitLesson, int>();
-            var entity = await repo.GetByIdAsync(id);
-            if (entity is null) throw new ArgumentException("Lesson not found.");
+			mapper.Map(dto, entity);
 
-            repo.Delete(entity);
-            await unitOfWork.SaveChangesAsync();
-        }
-    }
+			// ✅ Audit (Modified)
+			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+			repo.Update(entity);
+			await unitOfWork.SaveChangesAsync();
+
+			return mapper.Map<UnitLessonDto>(entity);
+		}
+
+		public async Task DeleteAsync(int id)
+		{
+			var repo = unitOfWork.GetRepository<UnitLesson, int>();
+			var entity = await repo.GetByIdAsync(id);
+
+			if (entity is null || entity.IsDeleted) throw new ArgumentException("Lesson not found.");
+
+			// ✅ SoftDelete
+			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+
+			repo.Update(entity);
+			await unitOfWork.SaveChangesAsync();
+		}
+
+		// ✅ Restore
+		public async Task RestoreAsync(int id)
+		{
+			var repo = unitOfWork.GetRepository<UnitLesson, int>();
+			var entity = await repo.GetByIdAsync(id);
+
+			if (entity is null) throw new ArgumentException("Lesson not found.");
+			if (!entity.IsDeleted) return;
+
+			entity.IsDeleted = false;
+			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+			repo.Update(entity);
+			await unitOfWork.SaveChangesAsync();
+		}
+	}
+
 }

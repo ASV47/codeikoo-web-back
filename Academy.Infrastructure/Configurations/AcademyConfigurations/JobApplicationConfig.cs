@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class JobApplicationConfig : IEntityTypeConfiguration<JobApplication>
-    {
+    public class JobApplicationConfig : BaseConfiguration<Course, int>
+	{
         public void Configure(EntityTypeBuilder<JobApplication> builder)
         {
             builder.HasOne(JA => JA.Job)

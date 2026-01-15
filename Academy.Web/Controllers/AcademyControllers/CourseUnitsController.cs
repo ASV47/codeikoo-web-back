@@ -1,4 +1,5 @@
-﻿using Academy.Interfaces.DTOs;
+﻿using Academy.Application.Services.AcademyServices;
+using Academy.Interfaces.DTOs;
 using Academy.Interfaces.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,5 +28,13 @@ namespace Academy.Web.Controllers
 			await serviceManager.CourseUnitService.DeleteAsync(id);
 			return NoContent();
 		}
+
+		[HttpPut("{id}/restore")]
+		public async Task<IActionResult> Restore(int id)
+		{
+			await serviceManager.CourseUnitService.RestoreAsync(id);
+			return NoContent();
+		}
+
 	}
 }

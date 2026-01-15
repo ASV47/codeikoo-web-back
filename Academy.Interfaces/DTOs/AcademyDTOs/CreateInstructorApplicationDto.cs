@@ -12,6 +12,7 @@ namespace Academy.Interfaces.DTOs
 		public string FullName { get; set; } = default!;
 		public string Email { get; set; } = default!;
 		public string Specialization { get; set; } = default!;
+		public string PhoneNumber { get; set; } = default!;
 		public string LinkedInUrl { get; set; } = default!;
 		public IFormFile? CvFile { get; set; }
 	}

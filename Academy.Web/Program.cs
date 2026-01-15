@@ -45,6 +45,7 @@ namespace Academy.Web
 			builder.Services.AddScoped<IServiceManager, ServiceManager>();
 			builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 			builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
+			//builder.Services.AddScoped<IdentityDataSeeder>();
 
 
 			builder.Services.AddAutoMapper(typeof(ApplicationProfile));
@@ -119,6 +120,13 @@ namespace Academy.Web
 			});
 
 			var app = builder.Build();
+
+			//using (var scope = app.Services.CreateScope())
+			//{
+			//	var seeder = scope.ServiceProvider.GetRequiredService<IdentityDataSeeder>();
+			//	await seeder.IdentityDataSeedAsync();
+			//}
+
 
 			// Configure the HTTP request pipeline.
 			app.UseMiddleware<CustomExceptionHandler>();

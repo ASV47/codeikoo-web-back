@@ -13,5 +13,7 @@ namespace Academy.Interfaces.IServices
 		Task<bool> DeleteAsync(int id);
 		Task<IEnumerable<JobApplicationDto>> GetAllAsync();
 		Task<JobApplicationDto?> GetByIdAsync(int id);
+		Task<bool> RestoreAsync(int id);
+
 	}
 }

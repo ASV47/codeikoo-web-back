@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class JobConfig : IEntityTypeConfiguration<Job>
-    {
+    public class JobConfig : BaseConfiguration<Course, int>
+	{
         public void Configure(EntityTypeBuilder<Job> builder)
         {
             builder.Property(J => J.EmploymentType)

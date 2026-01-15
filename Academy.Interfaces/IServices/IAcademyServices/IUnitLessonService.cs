@@ -16,5 +16,6 @@ namespace Academy.Interfaces.IServices
 
 		Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto);
 		Task DeleteAsync(int id);
+		Task RestoreAsync(int id);
 	}
 }
