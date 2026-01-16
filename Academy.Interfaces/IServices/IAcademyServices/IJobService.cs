@@ -9,10 +9,10 @@ namespace Academy.Interfaces.IServices
 {
 	public interface IJobService
 	{
-		Task<JobDto> AddAsync(CreateJobDto dto);
+		Task<JobDto> AddAsync(CreateJobDto dto, string? lang = "en");
 		Task<bool> DeleteAsync(int id);
-		Task<IEnumerable<JobDto>> GetAllAsync();
-		Task<JobDto?> GetByIdAsync(int id);
+		Task<IEnumerable<JobDto>> GetAllAsync(string? lang = "en");
+		Task<JobDto?> GetByIdAsync(int id, string? lang = "en");
 		Task<bool> RestoreAsync(int id);
 
 	}

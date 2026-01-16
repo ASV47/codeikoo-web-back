@@ -9,14 +9,14 @@ namespace Academy.Interfaces.IServices
 {
 	public interface ICourseService
 	{
-		Task<CourseDto> AddAsync(string userId, CreateCourseDto dto);
+		Task<CourseDto> AddAsync(string userId, CreateCourseDto dto, string? lang = "en");
 
-		Task<IEnumerable<CourseDto>> GetAllAsync();
-		Task<CourseDto> GetByIdAsync(int id);
+		Task<IEnumerable<CourseDto>> GetAllAsync(string? lang = "en");
+		Task<CourseDto> GetByIdAsync(int id, string? lang = "en");
 
-		Task<IEnumerable<CourseDto>> SearchAsync(string search);
+		Task<IEnumerable<CourseDto>> SearchAsync(string search, string? lang = "en");
 
-		Task<CourseDto> UpdateAsync(int id, CreateCourseDto dto);
+		Task<CourseDto> UpdateAsync(int id, string userId, CreateCourseDto dto, string? lang = "en");
 		Task DeleteAsync(int id);
 		Task RestoreAsync(int id);
 	}

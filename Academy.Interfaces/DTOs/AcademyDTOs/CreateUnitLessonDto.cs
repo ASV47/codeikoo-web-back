@@ -9,6 +9,8 @@ namespace Academy.Interfaces.DTOs
 	public class CreateUnitLessonDto
 	{
 		public int CourseUnitId { get; set; }
-		public string Title { get; set; } = default!;
+
+		public string TitleAr { get; set; } = default!;
+		public string TitleEn { get; set; } = default!;
 	}
 }

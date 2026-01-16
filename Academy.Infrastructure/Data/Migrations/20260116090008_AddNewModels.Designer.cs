@@ -4,6 +4,7 @@ using Academy.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Academy.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260116090008_AddNewModels")]
+    partial class AddNewModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -179,7 +182,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses", "Academy");
+                    b.ToTable("Course");
                 });
 
             modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.CourseUnit", b =>
@@ -216,7 +219,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CourseUnits", "Academy");
+                    b.ToTable("CourseUnit");
                 });
 
             modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.InstructorApplication", b =>
@@ -408,7 +411,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UnitLessons", "Academy");
+                    b.ToTable("UnitLesson");
                 });
 
             modelBuilder.Entity("CoreLayer.Entities.AboutUs", b =>
@@ -1178,7 +1181,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses", "Academy");
+                            b1.ToTable("Course");
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");
@@ -1199,7 +1202,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses", "Academy");
+                            b1.ToTable("Course");
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");
@@ -1220,7 +1223,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses", "Academy");
+                            b1.ToTable("Course");
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");
@@ -1253,7 +1256,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                             b1.HasKey("CourseUnitId");
 
-                            b1.ToTable("CourseUnits", "Academy");
+                            b1.ToTable("CourseUnit");
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseUnitId");
@@ -1390,7 +1393,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                             b1.HasKey("UnitLessonId");
 
-                            b1.ToTable("UnitLessons", "Academy");
+                            b1.ToTable("UnitLesson");
 
                             b1.WithOwner()
                                 .HasForeignKey("UnitLessonId");

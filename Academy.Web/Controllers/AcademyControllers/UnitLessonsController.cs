@@ -10,12 +10,12 @@ namespace Academy.Web.Controllers
 	public class UnitLessonsController(IServiceManager serviceManager) : APIBaseController
 	{
 		[HttpGet]
-		public async Task<ActionResult<List<UnitLessonDto>>> GetAll([FromQuery] int? courseUnitId)
-	   => Ok(await serviceManager.UnitLessonService.GetAllAsync(courseUnitId));
+		public async Task<ActionResult<List<UnitLessonDto>>> GetAll([FromQuery] int? courseUnitId, [FromQuery] string? lang = "en")
+		=> Ok(await serviceManager.UnitLessonService.GetAllAsync(courseUnitId, lang));
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<UnitLessonDto>> GetById(int id)
-			=> Ok(await serviceManager.UnitLessonService.GetByIdAsync(id));
+		public async Task<ActionResult<UnitLessonDto>> GetById(int id, [FromQuery] string? lang = "en")
+			=> Ok(await serviceManager.UnitLessonService.GetByIdAsync(id, lang));
 
 		[HttpPost]
 		public async Task<ActionResult<UnitLessonDto>> Add([FromBody] CreateUnitLessonDto dto)
@@ -25,15 +25,13 @@ namespace Academy.Web.Controllers
 		public async Task<ActionResult<UnitLessonDto>> Update(int id, [FromBody] CreateUnitLessonDto dto)
 			=> Ok(await serviceManager.UnitLessonService.UpdateAsync(id, dto));
 
-
-
-
 		[HttpDelete("{id:int}")]
 		public async Task<IActionResult> Delete(int id)
 		{
 			await serviceManager.UnitLessonService.DeleteAsync(id);
 			return NoContent();
 		}
+
 
 
 		[HttpPut("{id}/restore")]

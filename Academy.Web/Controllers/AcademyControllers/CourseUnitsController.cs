@@ -10,24 +10,24 @@ namespace Academy.Web.Controllers
 	public class CourseUnitsController(IServiceManager serviceManager) : APIBaseController
 	{
 		[HttpGet]
-		public async Task<ActionResult<List<CourseUnitDto>>> GetAll([FromQuery] int? courseId)
-		=> Ok(await serviceManager.CourseUnitService.GetAllAsync(courseId));
+		public async Task<ActionResult<List<CourseUnitDto>>> GetAll([FromQuery] int? courseId, [FromQuery] string? lang = "en")
+	=> Ok(await serviceManager.CourseUnitService.GetAllAsync(courseId, lang));
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CourseUnitDto>> GetById(int id)
-			=> Ok(await serviceManager.CourseUnitService.GetByIdAsync(id));
+		public async Task<ActionResult<CourseUnitDto>> GetById(int id, [FromQuery] string? lang = "en")
+			=> Ok(await serviceManager.CourseUnitService.GetByIdAsync(id, lang));
 
 		[HttpPost]
 		public async Task<ActionResult<CourseUnitDto>> Add([FromBody] CreateCourseUnitDto dto)
 			=> Ok(await serviceManager.CourseUnitService.AddAsync(dto));
 
-
 		[HttpDelete("{id:int}")]
-		public async Task<ActionResult<bool>> Delete(int id)
+		public async Task<IActionResult> Delete(int id)
 		{
 			await serviceManager.CourseUnitService.DeleteAsync(id);
 			return NoContent();
 		}
+
 
 		[HttpPut("{id}/restore")]
 		public async Task<IActionResult> Restore(int id)

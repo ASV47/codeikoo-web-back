@@ -30,6 +30,15 @@ namespace Academy.Web
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			//builder.Services.AddSwaggerGen();
+			//builder.Services.AddSwaggerGen(c =>
+			//{
+			//	c.SwaggerDoc("Academy", new OpenApiInfo { Title = "Academy API", Version = "v1" });
+			//	c.SwaggerDoc("Company", new OpenApiInfo { Title = "Company API", Version = "v1" });
+
+			//	c.DocInclusionPredicate((docName, apiDesc) =>
+			//		string.Equals(apiDesc.GroupName, docName, StringComparison.OrdinalIgnoreCase));
+			//});
+
 			builder.Services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("Academy", new OpenApiInfo { Title = "Academy API", Version = "v1" });
@@ -37,6 +46,26 @@ namespace Academy.Web
 
 				c.DocInclusionPredicate((docName, apiDesc) =>
 					string.Equals(apiDesc.GroupName, docName, StringComparison.OrdinalIgnoreCase));
+
+				c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+				{
+					In = ParameterLocation.Header,
+					Name = "Authorization",
+					Type = SecuritySchemeType.ApiKey,
+					Scheme = "Bearer",
+					Description = "Enter: Bearer <space> <token>"
+				});
+
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference { Id = "Bearer", Type = ReferenceType.SecurityScheme }
+			},
+			Array.Empty<string>()
+		}
+	});
 			});
 			builder.Services.AddDbContext<ApplicationDbContext>(Options =>
 			{
@@ -133,13 +162,23 @@ namespace Academy.Web
 			app.UseCors("AllowAll");
 			if (app.Environment.IsDevelopment())
 			{
-				app.UseSwagger();
-				//app.UseSwaggerUI();
+				//app.UseSwagger();
+				//app.UseSwaggerUI(c =>
+				//{
+				//	c.SwaggerEndpoint("/swagger/Academy/swagger.json", "Academy API v1");
+				//	c.SwaggerEndpoint("/swagger/Company/swagger.json", "Company API v1");
+				//});
+				app.UseSwagger(c =>
+				{
+					c.RouteTemplate = "swagger/{documentName}/swagger.json";
+				});
 				app.UseSwaggerUI(c =>
 				{
+					c.RoutePrefix = "swagger";
 					c.SwaggerEndpoint("/swagger/Academy/swagger.json", "Academy API v1");
 					c.SwaggerEndpoint("/swagger/Company/swagger.json", "Company API v1");
 				});
+
 			}
 
 			app.UseHttpsRedirection();

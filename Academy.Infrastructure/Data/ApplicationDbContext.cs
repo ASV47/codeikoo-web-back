@@ -57,6 +57,15 @@ namespace Academy.Infrastructure.Data
 			modelBuilder.Entity<ContactMessage>()
 				.ToTable("ContactMessages", schema: AcademySchema.AcademyDBSchema);
 
+			modelBuilder.Entity<Course>()
+				.ToTable("Courses", schema: AcademySchema.AcademyDBSchema);
+
+			modelBuilder.Entity<CourseUnit>()
+				.ToTable("CourseUnits", schema: AcademySchema.AcademyDBSchema);
+
+			modelBuilder.Entity<UnitLesson>()
+				.ToTable("UnitLessons", schema: AcademySchema.AcademyDBSchema);
+
 			modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
 			#region Company
@@ -121,6 +130,7 @@ namespace Academy.Infrastructure.Data
 		public DbSet<Job> Jobs { get; set; }
 		public DbSet<JobApplication> JobApplications { get; set; }
 		public DbSet<InstructorApplication> InstructorApplications { get; set; }
+
 
 		#region Company
 		public DbSet<CompanyCourse> CompanyCourses { get; set; }
