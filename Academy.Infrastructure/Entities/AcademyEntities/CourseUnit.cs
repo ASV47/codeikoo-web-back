@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Academy.Infrastructure.LangHelper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Academy.Infrastructure.Entities.AcademyEntities
 {
     public class CourseUnit : BaseEntity<int>
     {
-        public string Title { get; set; } = default!;
-        public int CourseId { get; set; }
+		public LocalizedString Title { get; set; } = new();
+		public int CourseId { get; set; }
     }
 }

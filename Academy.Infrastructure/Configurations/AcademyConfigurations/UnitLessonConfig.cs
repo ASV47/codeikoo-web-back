@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 {
-    public class UnitLessonConfig : BaseConfiguration<Course, int>
+    public class UnitLessonConfig : BaseConfiguration<UnitLesson, int>
 	{
         public void Configure(EntityTypeBuilder<UnitLesson> builder)
         {
@@ -18,12 +18,14 @@ namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 
             builder.HasKey(x => x.Id);
 
-            builder.Property(x => x.Title)
-                   .IsRequired()
-                   .HasMaxLength(200);
+			builder.Property(x => x.CourseUnitId)
+				.IsRequired();
 
-            builder.Property(x => x.CourseUnitId)
-                   .IsRequired();
-        }
+			builder.OwnsOne(x => x.Title, t =>
+			{
+				t.Property(p => p.Ar).HasColumnName("TitleAr").IsRequired().HasMaxLength(200);
+				t.Property(p => p.En).HasColumnName("TitleEn").IsRequired().HasMaxLength(200);
+			});
+		}
     }
 }

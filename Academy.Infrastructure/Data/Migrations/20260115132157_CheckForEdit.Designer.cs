@@ -4,6 +4,7 @@ using Academy.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Academy.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260115132157_CheckForEdit")]
+    partial class CheckForEdit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -158,8 +161,16 @@ namespace Academy.Infrastructure.Data.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
+
+                    b.Property<string>("Features")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -172,6 +183,10 @@ namespace Academy.Infrastructure.Data.Migrations
 
                     b.Property<DateTime?>("LastModifiedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -179,44 +194,7 @@ namespace Academy.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courses", "Academy");
-                });
-
-            modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.CourseUnit", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CourseUnits", "Academy");
+                    b.ToTable("Course");
                 });
 
             modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.InstructorApplication", b =>
@@ -372,43 +350,6 @@ namespace Academy.Infrastructure.Data.Migrations
                     b.HasIndex("JobId");
 
                     b.ToTable("JobApplications", "Academy");
-                });
-
-            modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.UnitLesson", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseUnitId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("CreatedOn")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("LastModifiedOn")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UnitLessons", "Academy");
                 });
 
             modelBuilder.Entity("CoreLayer.Entities.AboutUs", b =>
@@ -1161,108 +1102,6 @@ namespace Academy.Infrastructure.Data.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.Course", b =>
-                {
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Description", b1 =>
-                        {
-                            b1.Property<int>("CourseId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Ar")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("En")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("CourseId");
-
-                            b1.ToTable("Courses", "Academy");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CourseId");
-                        });
-
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedStringList", "Features", b1 =>
-                        {
-                            b1.Property<int>("CourseId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Ar")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("En")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("CourseId");
-
-                            b1.ToTable("Courses", "Academy");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CourseId");
-                        });
-
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Title", b1 =>
-                        {
-                            b1.Property<int>("CourseId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Ar")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("En")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("CourseId");
-
-                            b1.ToTable("Courses", "Academy");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CourseId");
-                        });
-
-                    b.Navigation("Description")
-                        .IsRequired();
-
-                    b.Navigation("Features")
-                        .IsRequired();
-
-                    b.Navigation("Title")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.CourseUnit", b =>
-                {
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Title", b1 =>
-                        {
-                            b1.Property<int>("CourseUnitId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Ar")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("En")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("CourseUnitId");
-
-                            b1.ToTable("CourseUnits", "Academy");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CourseUnitId");
-                        });
-
-                    b.Navigation("Title")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.Job", b =>
                 {
                     b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Description", b1 =>
@@ -1307,7 +1146,7 @@ namespace Academy.Infrastructure.Data.Migrations
                                 .HasForeignKey("JobId");
                         });
 
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedStringList", "Requirements", b1 =>
+                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Title", b1 =>
                         {
                             b1.Property<int>("JobId")
                                 .HasColumnType("int");
@@ -1328,7 +1167,7 @@ namespace Academy.Infrastructure.Data.Migrations
                                 .HasForeignKey("JobId");
                         });
 
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Title", b1 =>
+                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedStringList", "Requirements", b1 =>
                         {
                             b1.Property<int>("JobId")
                                 .HasColumnType("int");
@@ -1371,33 +1210,6 @@ namespace Academy.Infrastructure.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Job");
-                });
-
-            modelBuilder.Entity("Academy.Infrastructure.Entities.AcademyEntities.UnitLesson", b =>
-                {
-                    b.OwnsOne("Academy.Infrastructure.LangHelper.LocalizedString", "Title", b1 =>
-                        {
-                            b1.Property<int>("UnitLessonId")
-                                .HasColumnType("int");
-
-                            b1.Property<string>("Ar")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("En")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("UnitLessonId");
-
-                            b1.ToTable("UnitLessons", "Academy");
-
-                            b1.WithOwner()
-                                .HasForeignKey("UnitLessonId");
-                        });
-
-                    b.Navigation("Title")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("CoreLayer.Entities.CourseEnrollment", b =>

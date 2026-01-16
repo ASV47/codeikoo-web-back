@@ -1,4 +1,5 @@
 ﻿using Academy.Infrastructure.Entities.AcademyEntities;
+using Academy.Infrastructure.LangHelper;
 using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
@@ -15,17 +16,123 @@ namespace Academy.Application.Services.AcademyServices
 {
 	public class JobService(IUnitOfWork _unitOfWork, IMapper _mapper) : IJobService
 	{
-		public async Task<JobDto> AddAsync(CreateJobDto dto)
+		//public async Task<JobDto> AddAsync(CreateJobDto dto)
+		//{
+		//	var entity = _mapper.Map<Job>(dto);
+
+		//	// ✅ Audit (Created)
+		//	AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+
+		//	await _unitOfWork.GetRepository<Job, int>().AddAsync(entity);
+		//	await _unitOfWork.SaveChangesAsync();
+
+		//	return _mapper.Map<JobDto>(entity);
+		//}
+
+		//public async Task<bool> DeleteAsync(int id)
+		//{
+		//	var repo = _unitOfWork.GetRepository<Job, int>();
+		//	var entity = await repo.GetByIdAsync(id);
+
+		//	if (entity is null) return false;
+		//	if (entity.IsDeleted) return true;
+
+		//	// ✅ SoftDelete
+		//	AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+
+		//	repo.Update(entity);
+		//	await _unitOfWork.SaveChangesAsync();
+		//	return true;
+		//}
+
+		//public async Task<IEnumerable<JobDto>> GetAllAsync()
+		//{
+		//	var entities = await _unitOfWork.GetRepository<Job, int>()
+		//		.Query()
+		//		.AsNoTracking()
+		//		.Where(x => !x.IsDeleted)           // ✅ SoftDelete filter
+		//		.OrderByDescending(x => x.Id)
+		//		.ToListAsync();
+
+		//	return _mapper.Map<IEnumerable<JobDto>>(entities);
+		//}
+
+		//public async Task<JobDto?> GetByIdAsync(int id)
+		//{
+		//	var entity = await _unitOfWork.GetRepository<Job, int>()
+		//		.Query()
+		//		.AsNoTracking()
+		//		.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted); // ✅ SoftDelete filter
+
+		//	return entity is null ? null : _mapper.Map<JobDto>(entity);
+		//}
+
+		//// ✅ Restore
+		//public async Task<bool> RestoreAsync(int id)
+		//{
+		//	var repo = _unitOfWork.GetRepository<Job, int>();
+		//	var entity = await repo.GetByIdAsync(id);
+
+		//	if (entity is null) return false;
+		//	if (!entity.IsDeleted) return true;
+
+		//	entity.IsDeleted = false;
+		//	AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+		//	repo.Update(entity);
+		//	await _unitOfWork.SaveChangesAsync();
+		//	return true;
+		//}
+
+		public async Task<JobDto> AddAsync(CreateJobDto dto, string? lang = "en")
 		{
 			var entity = _mapper.Map<Job>(dto);
 
-			// ✅ Audit (Created)
 			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
 			await _unitOfWork.GetRepository<Job, int>().AddAsync(entity);
 			await _unitOfWork.SaveChangesAsync();
 
-			return _mapper.Map<JobDto>(entity);
+			return ToDto(entity, lang);
+		}
+
+		public async Task<JobDto> UpdateAsync(int id, CreateJobDto dto, string? lang = "en")
+		{
+			var repo = _unitOfWork.GetRepository<Job, int>();
+			var entity = await repo.GetByIdAsync(id);
+
+			if (entity is null || entity.IsDeleted)
+				throw new ArgumentException("Job not found.");
+
+			_mapper.Map(dto, entity);
+
+			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+			repo.Update(entity);
+			await _unitOfWork.SaveChangesAsync();
+
+			return ToDto(entity, lang);
+		}
+
+		public async Task<IEnumerable<JobDto>> GetAllAsync(string? lang = "en")
+		{
+			return await _unitOfWork.GetRepository<Job, int>()
+				.Query()
+				.AsNoTracking()
+				.Where(x => !x.IsDeleted)
+				.OrderByDescending(x => x.Id)
+				.SelectLocalized(lang)
+				.ToListAsync();
+		}
+
+		public async Task<JobDto?> GetByIdAsync(int id, string? lang = "en")
+		{
+			return await _unitOfWork.GetRepository<Job, int>()
+				.Query()
+				.AsNoTracking()
+				.Where(x => x.Id == id && !x.IsDeleted)
+				.SelectLocalized(lang)
+				.FirstOrDefaultAsync();
 		}
 
 		public async Task<bool> DeleteAsync(int id)
@@ -36,7 +143,6 @@ namespace Academy.Application.Services.AcademyServices
 			if (entity is null) return false;
 			if (entity.IsDeleted) return true;
 
-			// ✅ SoftDelete
 			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
 
 			repo.Update(entity);
@@ -44,29 +150,6 @@ namespace Academy.Application.Services.AcademyServices
 			return true;
 		}
 
-		public async Task<IEnumerable<JobDto>> GetAllAsync()
-		{
-			var entities = await _unitOfWork.GetRepository<Job, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(x => !x.IsDeleted)           // ✅ SoftDelete filter
-				.OrderByDescending(x => x.Id)
-				.ToListAsync();
-
-			return _mapper.Map<IEnumerable<JobDto>>(entities);
-		}
-
-		public async Task<JobDto?> GetByIdAsync(int id)
-		{
-			var entity = await _unitOfWork.GetRepository<Job, int>()
-				.Query()
-				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted); // ✅ SoftDelete filter
-
-			return entity is null ? null : _mapper.Map<JobDto>(entity);
-		}
-
-		// ✅ Restore
 		public async Task<bool> RestoreAsync(int id)
 		{
 			var repo = _unitOfWork.GetRepository<Job, int>();
@@ -81,6 +164,22 @@ namespace Academy.Application.Services.AcademyServices
 			repo.Update(entity);
 			await _unitOfWork.SaveChangesAsync();
 			return true;
+		}
+
+		private static JobDto ToDto(Job x, string? lang)
+		{
+			var isAr = LangHelper.IsArabic(lang);
+
+			return new JobDto
+			{
+				Id = x.Id,
+				Title = isAr ? x.Title.Ar : x.Title.En,
+				Description = isAr ? x.Description.Ar : x.Description.En,
+				Location = isAr ? x.Location.Ar : x.Location.En,
+				EmploymentType = x.EmploymentType,
+				PostedAt = x.PostedAt,
+				Requirements = isAr ? x.Requirements.Ar : x.Requirements.En
+			};
 		}
 	}
 
