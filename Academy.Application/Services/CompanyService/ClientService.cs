@@ -8,10 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Academy.Interfaces.IServices.IAcademyServices;
 
 namespace ServiceLayer
 {
-	public class ClientService(IUnitOfWork unitOfWork, IMapper mapper) : IClientService
+	public class ClientService(IUnitOfWork unitOfWork,
+        IMapper mapper, IFileStorageService fileStorage) : IClientService
 	{
 		public async Task<IEnumerable<ClientDto>> GetAllAsync()
 		{
@@ -25,36 +28,54 @@ namespace ServiceLayer
 			return mapper.Map<ClientDto>(client);
 		}
 
-		public async Task AddAsync(string logoUrl)
-		{
-			await unitOfWork.GetRepository<Client, int>().AddAsync(new Client { LogoUrl = logoUrl });
-			await unitOfWork.SaveChangesAsync();
-		}
+        public async Task AddAsync(IFormFile? image)
+        {
+            string logoUrl = string.Empty;
 
-		public async Task<bool> UpdateAsync(int id, string logoUrl)
-		{
-			var repo = unitOfWork.GetRepository<Client, int>();
-			var client = await repo.GetByIdAsync(id);
-			if (client == null) return false;
+            if (image is not null)
+                logoUrl = await fileStorage.UploadAsync(image, "ClientsLogo");
 
-			// تحديث اللوجو فقط إذا تم إرسال مسار جديد
-			if (!string.IsNullOrEmpty(logoUrl))
-			{
-				client.LogoUrl = logoUrl;
-			}
+            await unitOfWork.GetRepository<Client, int>()
+                .AddAsync(new Client { LogoUrl = logoUrl });
 
-			repo.Update(client);
-			return await unitOfWork.SaveChangesAsync() > 0;
-		}
+            await unitOfWork.SaveChangesAsync();
+        }
 
-		public async Task<bool> DeleteAsync(int id)
-		{
-			var repo = unitOfWork.GetRepository<Client, int>();
-			var client = await repo.GetByIdAsync(id);
-			if (client == null) return false;
 
-			repo.Delete(client);
-			return await unitOfWork.SaveChangesAsync() > 0;
-		}
-	}
+        public async Task<bool> UpdateAsync(int id, IFormFile? image)
+        {
+            var repo = unitOfWork.GetRepository<Client, int>();
+            var client = await repo.GetByIdAsync(id);
+            if (client == null) return false;
+
+            if (image is not null)
+            {
+                // امسح القديم من Uploadcare لو موجود
+                if (!string.IsNullOrWhiteSpace(client.LogoUrl))
+                    await fileStorage.DeleteAsync(client.LogoUrl);
+
+                // ارفع الجديد
+                client.LogoUrl = await fileStorage.UploadAsync(image, "ClientsLogo");
+            }
+
+            repo.Update(client);
+            return await unitOfWork.SaveChangesAsync() > 0;
+        }
+
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var repo = unitOfWork.GetRepository<Client, int>();
+            var client = await repo.GetByIdAsync(id);
+            if (client == null) return false;
+
+            // احذف اللوجو من Uploadcare
+            if (!string.IsNullOrWhiteSpace(client.LogoUrl))
+                await fileStorage.DeleteAsync(client.LogoUrl);
+
+            repo.Delete(client);
+            return await unitOfWork.SaveChangesAsync() > 0;
+        }
+
+    }
 }

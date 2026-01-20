@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace PresentationLayer.Controllers
 {
 	[ApiExplorerSettings(GroupName = "Company")]
-	public class FlexibilityItemsController(IServiceManager _serviceManager) : APIBaseController
+	public class FlexibilityItemsController(IServiceManager _serviceManager, IWebHostEnvironment env) : APIBaseController
 	{
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<FlexibilityItemDto>>> GetAll()
@@ -31,48 +31,32 @@ namespace PresentationLayer.Controllers
 			return Ok(result);
 		}
 
-		[HttpPost]
-		public async Task<ActionResult> Create([FromForm] CreateFlexibilityItemDto dto)
-		{
-			var path = DocumentSettings.UploadFile(dto.Icon, "Flexibility");
-			await _serviceManager.flexibilityItemService.AddAsync(dto.Title, path);
-			return Ok(new { Message = "Created Successfully" });
-		}
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Create([FromForm] CreateFlexibilityItemDto dto)
+        {
+            await _serviceManager.flexibilityItemService.AddAsync(dto.Title, dto.Icon);
+            return Ok(new { Message = "Created Successfully" });
+        }
 
-		[HttpPut("{id}")]
-		public async Task<ActionResult> Update(int id, [FromForm] CreateFlexibilityItemDto dto)
-		{
-			var itemDto = await _serviceManager.flexibilityItemService.GetByIdAsync(id);
-			if (itemDto == null) return NotFound();
 
-			string? newPath = null;
-			if (dto.Icon != null)
-			{
-				// مسح الصورة القديمة
-				var oldRelativePath = itemDto.IconUrl.Replace("https://localhost:7048/", "");
-				DocumentSettings.DeleteFile(oldRelativePath);
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Update(int id, [FromForm] CreateFlexibilityItemDto dto)
+        {
+            var ok = await _serviceManager.flexibilityItemService.UpdateAsync(id, dto.Title, dto.Icon);
 
-				// رفع الصورة الجديدة
-				newPath = DocumentSettings.UploadFile(dto.Icon, "Flexibility");
-			}
+            return ok ? Ok(new { Message = "Updated Successfully" }) : NotFound();
+        }
 
-			await _serviceManager.flexibilityItemService.UpdateAsync(id, dto.Title, newPath);
-			return Ok(new { Message = "Updated Successfully" });
-		}
 
-		[HttpDelete("{id}")]
-		public async Task<ActionResult> Delete(int id)
-		{
-			var itemDto = await _serviceManager.flexibilityItemService.GetByIdAsync(id);
-			if (itemDto == null) return NotFound();
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var ok = await _serviceManager.flexibilityItemService.DeleteAsync(id);
 
-			// مسح الصورة من الهارد
-			var relativePath = itemDto.IconUrl.Replace("https://localhost:7048/", "");
-			DocumentSettings.DeleteFile(relativePath);
+            return ok ? Ok(new { Message = "Deleted Successfully" }) : NotFound();
+        }
 
-			// مسح السجل من الداتابيز
-			await _serviceManager.flexibilityItemService.DeleteAsync(id);
-			return Ok(new { Message = "Deleted Successfully" });
-		}
-	}
+    }
 }

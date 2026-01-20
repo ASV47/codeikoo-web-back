@@ -1,6 +1,7 @@
 ﻿using Academy.Infrastructure.Entities.AcademyEntities;
 using Academy.Infrastructure.LangHelper;
 using Academy.Interfaces.DTOs;
+using Academy.Interfaces.DTOs.AcademyDTOs;
 using AutoMapper;
 using System;
 using System.Collections.Generic;
@@ -24,33 +25,21 @@ namespace Academy.Application.MappingProfile.AcademyMappingProfile
             CreateMap<CreateInstructorApplicationDto, InstructorApplication>()
                 .ForMember(dest => dest.CvFilePath, opt => opt.Ignore());
 
-			//CreateMap<Job, JobDto>()
-			//        .ForMember(d => d.Requirements, opt => opt.MapFrom(s => s.Requirements ?? new List<string>()));
+            CreateMap<ImageSlider, ImageSliderDto>()
+            .ForMember(d => d.ImageUrl, opt => opt.MapFrom<ImageSliderPictureUrlResolver>());
 
-			//CreateMap<CreateJobDto, Job>()
-			//    .ForMember(dest => dest.PostedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-			//    .ForMember(d => d.Requirements, opt => opt.MapFrom(s => s.Requirements ?? new List<string>()));
-			CreateMap<CreateJobDto, Job>()
+            // Create DTO -> Entity (مش هنماب Image هنا لأن الرفع هيتم في السيرفس)
+            CreateMap<CreateImageSliderDto, ImageSlider>()
+                .ForMember(d => d.ImageUrl, opt => opt.Ignore());
+
+            CreateMap<CreateJobDto, Job>()
 		 .ForMember(d => d.Title, opt => opt.MapFrom(s => new LocalizedString { Ar = s.TitleAr, En = s.TitleEn }))
 		 .ForMember(d => d.Description, opt => opt.MapFrom(s => new LocalizedString { Ar = s.DescriptionAr, En = s.DescriptionEn }))
 		 .ForMember(d => d.Location, opt => opt.MapFrom(s => new LocalizedString { Ar = s.LocationAr, En = s.LocationEn }))
 		 .ForMember(d => d.Requirements, opt => opt.MapFrom(s => new LocalizedStringList { Ar = s.RequirementsAr, En = s.RequirementsEn }))
 		 .ForMember(d => d.PostedAt, opt => opt.MapFrom(s => s.PostedAt ?? DateTime.UtcNow));
 
-			//CreateMap<Job, JobDto>()
-			//.ForMember(d => d.Title,
-			//	opt => opt.MapFrom((src, _, __, ctx) =>
-			//		LangHelper.IsArabic((string?)ctx.Items["lang"]) ? src.Title.Ar : src.Title.En))
-			//.ForMember(d => d.Description,
-			//	opt => opt.MapFrom((src, _, __, ctx) =>
-			//		LangHelper.IsArabic((string?)ctx.Items["lang"]) ? src.Description.Ar : src.Description.En))
-			//.ForMember(d => d.Location,
-			//	opt => opt.MapFrom((src, _, __, ctx) =>
-			//		LangHelper.IsArabic((string?)ctx.Items["lang"]) ? src.Location.Ar : src.Location.En))
-			//.ForMember(d => d.Requirements,
-			//	opt => opt.MapFrom((src, _, __, ctx) =>
-			//		LangHelper.IsArabic((string?)ctx.Items["lang"]) ? src.Requirements.Ar : src.Requirements.En));
-
+			
 			CreateMap<Job, JobDto>()
 	.ForMember(d => d.Title, opt => opt.MapFrom((src, _, __, ctx) =>
 		LangHelper.IsArabic(ctx.Items["lang"]?.ToString()) ? src.Title.Ar : src.Title.En))

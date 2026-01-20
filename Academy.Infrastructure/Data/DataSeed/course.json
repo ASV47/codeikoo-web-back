@@ -1,0 +1,30 @@
+[
+  {
+    "Name": "ASP.Net",
+    "Description": "ASP.NET Course: Learn how to build secure, scalable, and high-performance web applications and APIs using C# and ASP.NET Core, with hands-on experience in databases and backend development.",
+    "Price": 5000,
+    "StartDate": "2026-01-01",
+    "EndDate": "2026-06-01"
+  },
+  {
+    "Name": "Frontent Using Angular",
+    "Description": "Frontend Using Angular: Learn how to build dynamic, responsive, and user-friendly web applications using Angular, TypeScript, and modern frontend development practices.",
+    "Price": 4000,
+    "StartDate": "2026-01-01",
+    "EndDate": "2026-06-01"
+  },
+  {
+    "Name": "Odoo ERP System",
+    "Description": "Odoo ERP System: Learn how to use and customize Odoo ERP to manage business processes efficiently, including sales, accounting, inventory, HR, and CRM in an integrated system.",
+    "Price": 5500,
+    "StartDate": "2026-01-15",
+    "EndDate": "2026-07-01"
+  },
+  {
+    "Name": "PHP Laravel",
+    "Description": "PHP Laravel: Learn how to build secure, scalable, and modern web applications using PHP Laravel, following MVC architecture and best practices.",
+    "Price": 4000,
+    "StartDate": "2026-02-01",
+    "EndDate": "2026-05-30"
+  }
+]

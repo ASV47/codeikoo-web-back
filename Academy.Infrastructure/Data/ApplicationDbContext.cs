@@ -129,7 +129,8 @@ namespace Academy.Infrastructure.Data
 		public DbSet<ContactMessage> ContactMessages { get; set; }
 		public DbSet<Job> Jobs { get; set; }
 		public DbSet<JobApplication> JobApplications { get; set; }
-		public DbSet<InstructorApplication> InstructorApplications { get; set; }
+		public DbSet<ImageSlider> ImageSliders { get; set; }
+        public DbSet<InstructorApplication> InstructorApplications { get; set; }
 
 
 		#region Company

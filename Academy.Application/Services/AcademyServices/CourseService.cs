@@ -3,7 +3,9 @@ using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.IServices.IAcademyServices;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,47 +15,77 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-	public class CourseService(IUnitOfWork unitOfWork, IMapper mapper) : ICourseService
+	public class CourseService(IUnitOfWork unitOfWork, IMapper mapper,
+        IFileStorageService fileStorage) : ICourseService
 	{
-		//public async Task<CourseDto> AddAsync(string userId, CreateCourseDto dto, string? lang = "en")
-		//{
-		//	string imagePath = string.Empty;
-		//	if (dto.CourseImage is not null)
-		//		imagePath = DocumentSettings.UploadFile(dto.CourseImage, "CourseImages");
 
-		//	var entity = mapper.Map<Course>(dto);
-		//	entity.UserId = userId;
-		//	entity.CourseImage = imagePath;
+        public async Task<CourseDto> AddAsync(string userId, CreateCourseDto dto, string? lang = "en")
+        {
+            string imageUrl = string.Empty;
 
-		//	AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+            if (dto.CourseImage is not null)
+                imageUrl = await fileStorage.UploadAsync(dto.CourseImage, "CourseImages");
 
-		//	await unitOfWork.GetRepository<Course, int>().AddAsync(entity);
-		//	await unitOfWork.SaveChangesAsync();
+            var entity = mapper.Map<Course>(dto);
+            entity.UserId = userId;
+            entity.CourseImage = imageUrl;
 
-		//	return mapper.Map<CourseDto>(entity, opt => opt.Items["lang"] = lang);
-		//}
+            AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
-		public async Task<CourseDto> AddAsync(string userId, CreateCourseDto dto, string? lang = "en")
-		{
-			string imagePath = string.Empty;
-			if (dto.CourseImage is not null)
-				imagePath = DocumentSettings.UploadFile(dto.CourseImage, "CourseImages");
+            await unitOfWork.GetRepository<Course, int>().AddAsync(entity);
+            await unitOfWork.SaveChangesAsync();
 
-			var entity = mapper.Map<Course>(dto);
-			entity.UserId = userId;
-			entity.CourseImage = imagePath;
+            return mapper.Map<CourseDto>(entity, opt => opt.Items["lang"] = lang);
+        }
 
-			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+        public async Task<CourseDto> UpdateAsync(int id, string userId, CreateCourseDto dto, string? lang = "en")
+        {
+            var repo = unitOfWork.GetRepository<Course, int>();
 
-			await unitOfWork.GetRepository<Course, int>().AddAsync(entity);
-			await unitOfWork.SaveChangesAsync();
+            var entity = await repo.GetByIdAsync(id);
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Course not found.");
 
-			return mapper.Map<CourseDto>(entity, opt => opt.Items["lang"] = lang);
-		}
+            if (!string.Equals(entity.UserId, userId, StringComparison.Ordinal))
+                throw new UnauthorizedAccessException("You are not allowed to update this course.");
+
+            mapper.Map(dto, entity);
+
+            if (dto.CourseImage is not null)
+            {
+                // اختياري: امسح القديمة من Uploadcare
+                if (!string.IsNullOrWhiteSpace(entity.CourseImage))
+                    await fileStorage.DeleteAsync(entity.CourseImage);
+
+                entity.CourseImage = await fileStorage.UploadAsync(dto.CourseImage, "CourseImages");
+            }
+
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
+
+            return mapper.Map<CourseDto>(entity, opt => opt.Items["lang"] = lang);
+        }
+
+
+        public async Task DeleteAsync(int id)
+        {
+            var repo = unitOfWork.GetRepository<Course, int>();
+            var entity = await repo.GetByIdAsync(id);
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Course not found.");
+
+            AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
+        }
 
 
 
-		public async Task<IEnumerable<CourseDto>> GetAllAsync(string? lang = "en")
+
+        public async Task<IEnumerable<CourseDto>> GetAllAsync(string? lang = "en")
 		{
 			var entities = await unitOfWork.GetRepository<Course, int>()
 				.Query()
@@ -98,55 +130,6 @@ namespace Academy.Application.Services.AcademyServices
 				.ToListAsync();
 
 			return mapper.Map<List<CourseDto>>(entities, opt => opt.Items["lang"] = lang);
-		}
-
-
-		public async Task<CourseDto> UpdateAsync(int id, string userId, CreateCourseDto dto, string? lang = "en")
-		{
-			var repo = unitOfWork.GetRepository<Course, int>();
-
-			var entity = await repo.GetByIdAsync(id);
-			if (entity is null || entity.IsDeleted)
-				throw new ArgumentException("Course not found.");
-
-			// ✅ لو عايز تمنع تعديل كورس مش بتاع المستخدم
-			if (!string.Equals(entity.UserId, userId, StringComparison.Ordinal))
-				throw new UnauthorizedAccessException("You are not allowed to update this course.");
-
-			mapper.Map(dto, entity);
-
-			// ✅ الصورة: لو المستخدم بعت صورة جديدة
-			if (dto.CourseImage is not null)
-			{
-				if (!string.IsNullOrWhiteSpace(entity.CourseImage))
-					DocumentSettings.DeleteFile(entity.CourseImage);
-
-				entity.CourseImage = DocumentSettings.UploadFile(dto.CourseImage, "CourseImages");
-			}
-			// ✅ لو مبعتش صورة جديدة: سيب القديمة زي ما هي
-
-			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
-
-			repo.Update(entity);
-			await unitOfWork.SaveChangesAsync();
-
-			return mapper.Map<CourseDto>(entity, opt => opt.Items["lang"] = lang);
-		}
-
-
-
-		public async Task DeleteAsync(int id)
-		{
-			var repo = unitOfWork.GetRepository<Course, int>();
-			var entity = await repo.GetByIdAsync(id);
-			if (entity is null || entity.IsDeleted)
-				throw new ArgumentException("Course not found.");
-
-			// ✅ SoftDelete فقط (من غير حذف الصورة أو أي شيء)
-			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
-
-			repo.Update(entity);
-			await unitOfWork.SaveChangesAsync();
 		}
 
 		public async Task RestoreAsync(int id)

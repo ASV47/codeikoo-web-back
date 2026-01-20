@@ -37,6 +37,7 @@ namespace Academy.Application.Services.AcademyServices
                 throw new UnAuthorizedException();
         }
 
+
         public async Task<UserDTO> RegisterAsync(RegisterDTO registerDTO)
         {
             var User = new ApplicationUser()
@@ -44,7 +45,8 @@ namespace Academy.Application.Services.AcademyServices
                 UserName = registerDTO.UserName,
                 Email = registerDTO.Email,
                 DisplayName = registerDTO.DisplayName,
-                PhoneNumber = registerDTO.PhoneNumber
+                PhoneNumber = registerDTO.PhoneNumber,
+                Governorate = registerDTO.Governorate
             };
 
             var Result = await _userManager.CreateAsync(User, registerDTO.Password);
@@ -61,60 +63,6 @@ namespace Academy.Application.Services.AcademyServices
                 throw new BadRequestException(Errors);
             }
         }
-
-        //public async Task ForgotPasswordAsync(ForgotPasswordDTO dto)
-        //{
-        //	var user = await _userManager.FindByEmailAsync(dto.Email);
-
-        //	// مهم: ما تفضحش وجود الإيميل من عدمه
-        //	if (user is null)
-        //		return;
-
-        //	var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-
-        //	// URL-safe
-        //	var tokenEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-
-        //	// اللينك ده خليّه يروح لفرونت-إند صفحة reset (أفضل)
-        //	// مثال: https://your-frontend/reset-password?email=...&token=...
-        //	var frontUrl = _configuration["FrontEnd:ResetPasswordUrl"];
-        //	var resetLink = $"{frontUrl}?email={Uri.EscapeDataString(user.Email!)}&token={tokenEncoded}";
-
-        //	var subject = "Reset your password";
-        //	var body = $"<p>Click to reset your password:</p><p><a href='{resetLink}'>Reset Password</a></p>";
-
-        //	await _emailSender.SendAsync(user.Email!, subject, body);
-        //}
-
-        //public async Task ResetPasswordAsync(ResetPasswordDTO dto)
-        //{
-        //	var user = await _userManager.FindByEmailAsync(dto.Email);
-        //	if (user is null)
-        //	{
-        //		// برضه ممكن ترجع BadRequest عام (أو تعمل نفس مبدأ عدم الإفصاح)
-        //		throw new BadRequestException(new List<string> { "Invalid reset request." });
-        //	}
-
-        //	// Decode token
-        //	string token;
-        //	try
-        //	{
-        //		var bytes = WebEncoders.Base64UrlDecode(dto.Token);
-        //		token = Encoding.UTF8.GetString(bytes);
-        //	}
-        //	catch
-        //	{
-        //		throw new BadRequestException(new List<string> { "Invalid token format." });
-        //	}
-
-        //	var result = await _userManager.ResetPasswordAsync(user, token, dto.NewPassword);
-
-        //	if (!result.Succeeded)
-        //	{
-        //		var errors = result.Errors.Select(e => e.Description).ToList();
-        //		throw new BadRequestException(errors);
-        //	}
-        //}
 
 
         public async Task<string?> GenerateResetTokenAsync(ForgotPasswordDTO dto)

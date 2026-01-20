@@ -25,11 +25,6 @@ namespace Academy.Web.Controllers
 		public async Task<ActionResult<IEnumerable<JobDto>>> GetAll([FromQuery] string? lang = "en")
 		=> Ok(await _serviceManager.JobService.GetAllAsync(lang));
 
-
-		//[HttpGet("{id}")]
-		//public async Task<ActionResult<JobDto?>> GetById(int id)
-		//=> Ok(await _serviceManager.JobService.GetByIdAsync(id));
-
 		[HttpGet("{id}")]
 		public async Task<ActionResult<JobDto?>> GetById(int id, [FromQuery] string? lang = "en")
 		=> Ok(await _serviceManager.JobService.GetByIdAsync(id, lang));

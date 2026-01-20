@@ -11,5 +11,7 @@ namespace Academy.Interfaces.DTOs
 		public string Email { get; set; } = default!;
 		public string Token { get; set; } = default!;
 		public string DisplayName { get; set; } = default!;
-	}
+        //public string PhoneNumber { get; set; } = default!;
+        //public string Governorate { get; set; } = default!;
+    }
 }

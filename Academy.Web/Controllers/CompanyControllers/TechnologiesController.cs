@@ -16,10 +16,11 @@ using System.Threading.Tasks;
 namespace PresentationLayer.Controllers
 {
 	[ApiExplorerSettings(GroupName = "Company")]
-	public class TechnologiesController(IServiceManager _serviceManager) : APIBaseController
+	public class TechnologiesController(IServiceManager _serviceManager, IWebHostEnvironment env) : APIBaseController
 	{
 		[HttpGet]
-		public async Task<ActionResult> GetAll() => Ok(await _serviceManager.TechnologyService.GetAllAsync());
+		public async Task<ActionResult> GetAll() 
+		=> Ok(await _serviceManager.TechnologyService.GetAllAsync());
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<TechnologyDto>> GetById(int id)
@@ -35,7 +36,7 @@ namespace PresentationLayer.Controllers
 		[HttpPost]
 		public async Task<ActionResult> Add([FromForm] CreateTechnologyDto dto)
 		{
-			var path = DocumentSettings.UploadFile(dto.Image, "Logo");
+			var path = DocumentSettings.UploadFile(dto.Image, "Logo", env);
 			await _serviceManager.TechnologyService.AddAsync(path);
 			return Ok(new { Message = "Added Successfully" });
 		}
@@ -53,7 +54,7 @@ namespace PresentationLayer.Controllers
 				var oldPath = existing.TechnologyUrl.Replace("https://localhost:7048", "");
 				DocumentSettings.DeleteFile(oldPath);
 
-				finalPath = DocumentSettings.UploadFile(dto.Image, "Technologies");
+				finalPath = DocumentSettings.UploadFile(dto.Image, "Technologies", env);
 			}
 
 			var result = await _serviceManager.TechnologyService.UpdateAsync(id, finalPath!);

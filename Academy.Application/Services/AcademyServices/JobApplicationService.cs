@@ -3,7 +3,9 @@ using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.IServices.IAcademyServices;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,51 +16,52 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-	public class JobApplicationService(IUnitOfWork _unitOfWork, IMapper _mapper) : IJobApplicationService
+	public class JobApplicationService(IUnitOfWork _unitOfWork,
+		IMapper _mapper, IFileStorageService fileStorage) : IJobApplicationService
 	{
-		public async Task<JobApplicationDto> AddAsync(CreateJobApplicationDto dto)
-		{
-			// ✅ Job لازم يكون موجود ومش SoftDeleted (لو Job عنده IsDeleted)
-			var jobRepo = _unitOfWork.GetRepository<Job, int>();
-			var job = await jobRepo.Query()
-				.AsNoTracking()
-				.FirstOrDefaultAsync(j => j.Id == dto.JobId && !j.IsDeleted);
+        public async Task<JobApplicationDto> AddAsync(CreateJobApplicationDto dto)
+        {
+            // ✅ Job لازم يكون موجود ومش SoftDeleted
+            var jobRepo = _unitOfWork.GetRepository<Job, int>();
+            var job = await jobRepo.Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(j => j.Id == dto.JobId && !j.IsDeleted);
 
-			if (job is null) throw new ArgumentException("Job not found.");
+            if (job is null) throw new ArgumentException("Job not found.");
 
-			string cvPath = string.Empty;
-			if (dto.CvFile is not null)
-				cvPath = DocumentSettings.UploadFile(dto.CvFile, "JobApplicationCVs");
+            string cvUrl = string.Empty;
+            if (dto.CvFile is not null)
+                cvUrl = await fileStorage.UploadAsync(dto.CvFile, "JobApplicationCVs");
 
-			var entity = _mapper.Map<JobApplication>(dto);
-			entity.CvFilePath = cvPath;
+            var entity = _mapper.Map<JobApplication>(dto);
+            entity.CvFilePath = cvUrl;
 
-			// ✅ Audit (Created)
-			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+            AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
-			await _unitOfWork.GetRepository<JobApplication, int>().AddAsync(entity);
-			await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.GetRepository<JobApplication, int>().AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
 
-			return _mapper.Map<JobApplicationDto>(entity);
-		}
+            return _mapper.Map<JobApplicationDto>(entity);
+        }
 
-		public async Task<bool> DeleteAsync(int id)
-		{
-			var repo = _unitOfWork.GetRepository<JobApplication, int>();
-			var entity = await repo.GetByIdAsync(id);
 
-			if (entity is null) return false;
-			if (entity.IsDeleted) return true;
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var repo = _unitOfWork.GetRepository<JobApplication, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-			// ✅ SoftDelete فقط (بدون حذف الملف)
-			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+            if (entity is null) return false;
+            if (entity.IsDeleted) return true;
 
-			repo.Update(entity);
-			await _unitOfWork.SaveChangesAsync();
-			return true;
-		}
+            AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
 
-		public async Task<IEnumerable<JobApplicationDto>> GetAllAsync()
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<IEnumerable<JobApplicationDto>> GetAllAsync()
 		{
 			var entities = await _unitOfWork.GetRepository<JobApplication, int>()
 				.Query()
