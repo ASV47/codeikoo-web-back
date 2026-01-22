@@ -18,14 +18,20 @@ namespace Academy.Application.Services.AcademyServices
     {
         public async Task<ImageSliderDto> AddAsync(CreateImageSliderDto dto)
         {
-            if (dto.Image is null)
-                throw new ArgumentException("Image is required.");
+            var imageUrl = string.Empty;
+            var panarUrl = string.Empty;
 
-            var imageUrl = await fileStorage.UploadAsync(dto.Image, "ImageSlider");
+            if (dto.Image is not null)
+                imageUrl = await fileStorage.UploadAsync(dto.Image, "ImageSlider");
+
+            if (dto.ImagePanar is not null)
+                panarUrl = await fileStorage.UploadAsync(dto.ImagePanar, "ImageSlider");
 
             var entity = new ImageSlider
             {
-                ImageUrl = imageUrl
+                ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl,
+                ImagePanar = string.IsNullOrWhiteSpace(panarUrl) ? null : panarUrl,
+                Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim()
             };
 
             AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
@@ -35,6 +41,7 @@ namespace Academy.Application.Services.AcademyServices
 
             return mapper.Map<ImageSliderDto>(entity);
         }
+
 
         public async Task<List<ImageSliderDto>> GetAllAsync()
         {
@@ -69,9 +76,9 @@ namespace Academy.Application.Services.AcademyServices
             if (entity is null || entity.IsDeleted)
                 throw new ArgumentException("Image slider item not found.");
 
+            // Image
             if (dto.Image is not null)
             {
-                // اختياري: امسح القديمة من Uploadcare
                 if (!string.IsNullOrWhiteSpace(entity.ImageUrl))
                 {
                     try { await fileStorage.DeleteAsync(entity.ImageUrl); }
@@ -81,6 +88,23 @@ namespace Academy.Application.Services.AcademyServices
                 entity.ImageUrl = await fileStorage.UploadAsync(dto.Image, "ImageSlider");
             }
 
+            // ImagePanar
+            if (dto.ImagePanar is not null)
+            {
+                if (!string.IsNullOrWhiteSpace(entity.ImagePanar))
+                {
+                    try { await fileStorage.DeleteAsync(entity.ImagePanar); }
+                    catch { /* log لو عندك */ }
+                }
+
+                entity.ImagePanar = await fileStorage.UploadAsync(dto.ImagePanar, "ImageSlider");
+            }
+
+            // Email (يتغير فقط لو اتبعت في الفورم)
+            // - لو اتبعت فاضي => يمسحه (null)
+            if (dto.Email is not null)
+                entity.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim();
+
             AuditHelper.SetModified(entity, AuditDefaults.AdminId);
 
             repo.Update(entity);
@@ -88,6 +112,7 @@ namespace Academy.Application.Services.AcademyServices
 
             return mapper.Map<ImageSliderDto>(entity);
         }
+
 
         public async Task DeleteAsync(int id)
         {

@@ -17,6 +17,5 @@ namespace Academy.Interfaces.DTOs
 		public string CoverLetter { get; set; } = default!;
 		public DateTime AppliedAt { get; set; }
 		public int JobId { get; set; }
-		//public string UserId { get; set; } = default!;
 	}
 }

@@ -8,22 +8,23 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Entities.AcademyEntities
 {
-    public class Job : BaseEntity<int>
+    public class Job : LocalizableEntity
     {
-		//public string Title { get; set; } = default!;
-		//public string Description { get; set; } = default!;
-		//public string Location { get; set; } = default!;
-		//public EmploymentType EmploymentType { get; set; }
-		//public DateTime PostedAt { get; set; }
-		//public List<string> Requirements { get; set; } = new();
+        //public LocalizedString Title { get; set; } = new();
+        //public LocalizedString Description { get; set; } = new();
+        //public string Location { get; set; } = default!;
 
-		public LocalizedString Title { get; set; } = new();
-		public LocalizedString Description { get; set; } = new();
-		public LocalizedString Location { get; set; } = new();
+        //public EmploymentType EmploymentType { get; set; }
+        //public DateTime PostedAt { get; set; }
 
-		public EmploymentType EmploymentType { get; set; }
-		public DateTime PostedAt { get; set; }
+        //public List<string> RequirementsAr { get; set; }
+        //public List<string> RequirementsEn { get; set; }
+        public string Location { get; set; } = default!;
 
-		public LocalizedStringList Requirements { get; set; } = new();
-	}
+        public EmploymentType EmploymentType { get; set; }
+        public DateTime PostedAt { get; set; }
+
+        public List<string> RequirementsAr { get; set; } = new();
+        public List<string> RequirementsEn { get; set; } = new();
+    }
 }

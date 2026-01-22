@@ -10,5 +10,7 @@ namespace Academy.Interfaces.DTOs.AcademyDTOs
     public class CreateImageSliderDto
     {
         public IFormFile? Image { get; set; }
+        public IFormFile? ImagePanar { get; set; } // ✅ صورة بانر
+        public string? Email { get; set; }
     }
 }

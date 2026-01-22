@@ -9,5 +9,7 @@ namespace Academy.Infrastructure.Entities.AcademyEntities
     public class ImageSlider : BaseEntity<int>
     {
         public string? ImageUrl { get; set; }
+        public string? ImagePanar { get; set; }
+        public string? Email { get; set; }
     }
 }

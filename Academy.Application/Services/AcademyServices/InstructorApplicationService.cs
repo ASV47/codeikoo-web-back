@@ -20,6 +20,8 @@ namespace Academy.Application.Services.AcademyServices
 	{
         public async Task<InstructorApplicationDto> AddAsync(CreateInstructorApplicationDto dto)
         {
+            if (dto is null)
+                throw new ArgumentNullException(nameof(dto));
             string cvUrl = string.Empty;
 
             if (dto.CvFile is not null)
@@ -35,6 +37,7 @@ namespace Academy.Application.Services.AcademyServices
 
             return _mapper.Map<InstructorApplicationDto>(entity);
         }
+
 
 
         public async Task<bool> DeleteAsync(int id)

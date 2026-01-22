@@ -3,6 +3,7 @@ using Academy.Infrastructure.LangHelper;
 using Academy.Infrastructure.StaticData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,38 +43,17 @@ namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 				   .HasForeignKey(x => x.CourseId)
 				   .OnDelete(DeleteBehavior.Cascade);
 
-			// ✅ Title (Owned) -> نفس الجدول
-			builder.OwnsOne(x => x.Title, t =>
-			{
-				t.Property(p => p.Ar).HasColumnName("TitleAr").IsRequired().HasMaxLength(200);
-				t.Property(p => p.En).HasColumnName("TitleEn").IsRequired().HasMaxLength(200);
-			});
 
-			// ✅ Description (Owned) -> نفس الجدول
-			builder.OwnsOne(x => x.Description, d =>
-			{
-				d.Property(p => p.Ar).HasColumnName("DescriptionAr").IsRequired().HasMaxLength(4000);
-				d.Property(p => p.En).HasColumnName("DescriptionEn").IsRequired().HasMaxLength(4000);
-			});
+            var stringListConverter = new ValueConverter<List<string>, string>(
+        v => JsonSerializer.Serialize(v ?? new(), (JsonSerializerOptions?)null),
+        v => string.IsNullOrWhiteSpace(v)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+    );
 
-			// ✅ Features (Owned + JSON لكل لغة) -> نفس الجدول
-			var converter = new StringListToJsonConverter();
-			var comparer = new StringListValueComparer();
-
-			builder.OwnsOne(x => x.Features, f =>
-			{
-				f.Property(p => p.Ar)
-				 .HasColumnName("FeaturesAr")
-				 .HasColumnType("nvarchar(max)")
-				 .HasConversion(converter)
-				 .Metadata.SetValueComparer(comparer);
-
-				f.Property(p => p.En)
-				 .HasColumnName("FeaturesEn")
-				 .HasColumnType("nvarchar(max)")
-				 .HasConversion(converter)
-				 .Metadata.SetValueComparer(comparer);
-			});
-		}
+            
+                builder.Property(x => x.FeaturesAr).HasConversion(stringListConverter).HasColumnType("nvarchar(max)");
+                builder.Property(x => x.FeaturesEn).HasConversion(stringListConverter).HasColumnType("nvarchar(max)");
+        }
     }
 }

@@ -16,11 +16,7 @@ namespace Academy.Infrastructure.Entities.AcademyEntities
         [Phone]
         public string PhoneNumber { get; set; } = default!;
         public string LinkedInUrl { get; set; }
-        public string CvFilePath { get; set; }
+        public string? CvFilePath { get; set; }
         public DateTime AppliedAt { get; set; } = DateTime.UtcNow;
-
-        //[ForeignKey("User")]
-        //public string UserId { get; set; } = default!;
-        //public ApplicationUser User { get; set; } = null!;
     }
 }

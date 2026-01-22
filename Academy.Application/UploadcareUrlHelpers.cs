@@ -12,11 +12,6 @@ namespace Academy.Application
        => Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
           (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
-        /// <summary>
-        /// For images: returns a display-friendly URL (preview/resize) to avoid browser download behavior.
-        /// For files: returns the original URL unchanged.
-        /// For relative paths: prefixes BaseUrl.
-        /// </summary>
         public static string ResolveUrl(
             string? storedValue,
             string? baseUrl,

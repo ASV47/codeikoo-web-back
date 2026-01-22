@@ -21,11 +21,7 @@ namespace Academy.Infrastructure.Configurations.AcademyConfigurations
 			builder.Property(x => x.CourseUnitId)
 				.IsRequired();
 
-			builder.OwnsOne(x => x.Title, t =>
-			{
-				t.Property(p => p.Ar).HasColumnName("TitleAr").IsRequired().HasMaxLength(200);
-				t.Property(p => p.En).HasColumnName("TitleEn").IsRequired().HasMaxLength(200);
-			});
+			
 		}
     }
 }

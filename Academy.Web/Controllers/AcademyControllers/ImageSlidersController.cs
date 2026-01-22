@@ -19,12 +19,15 @@ namespace Academy.Web.Controllers.AcademyControllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ImageSliderDto>> Add([FromForm] CreateImageSliderDto dto)
-            => Ok(await serviceManager.ImageSliderService.AddAsync(dto));
+        => Ok(await serviceManager.ImageSliderService.AddAsync(dto));
+
 
         [HttpPut("{id:int}")]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ImageSliderDto>> Update(int id, [FromForm] CreateImageSliderDto dto)
             => Ok(await serviceManager.ImageSliderService.UpdateAsync(id, dto));
+
+
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)

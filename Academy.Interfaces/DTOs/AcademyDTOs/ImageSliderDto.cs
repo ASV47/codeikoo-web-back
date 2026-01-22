@@ -10,5 +10,7 @@ namespace Academy.Interfaces.DTOs.AcademyDTOs
     {
         public int Id { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
+        public string ImagePanarUrl { get; set; } = string.Empty;
+        public string? Email { get; set; }
     }
 }

@@ -14,106 +14,98 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-	public class JobService(IUnitOfWork _unitOfWork, IMapper _mapper) : IJobService
+	public class JobService : IJobService
 	{
-		
-		public async Task<JobDto> AddAsync(CreateJobDto dto, string? lang = "en")
-		{
-			var entity = _mapper.Map<Job>(dto);
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
+        private readonly ILocalizationService _localization;
 
-			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+        public JobService(IUnitOfWork unitOfWork, IMapper mapper, ILocalizationService localization)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _localization = localization;
+        }
 
-			await _unitOfWork.GetRepository<Job, int>().AddAsync(entity);
-			await _unitOfWork.SaveChangesAsync();
+        public async Task<JobDto> AddAsync(CreateJobDto dto)
+        {
+            var entity = _mapper.Map<Job>(dto);
+            entity.PostedAt = dto.PostedAt ?? DateTime.UtcNow;
 
-			return ToDto(entity, lang);
-		}
+            AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
-		public async Task<JobDto> UpdateAsync(int id, CreateJobDto dto, string? lang = "en")
-		{
-			var repo = _unitOfWork.GetRepository<Job, int>();
-			var entity = await repo.GetByIdAsync(id);
+            await _unitOfWork.GetRepository<Job, int>().AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
 
-			if (entity is null || entity.IsDeleted)
-				throw new ArgumentException("Job not found.");
+            return ToDto(entity);
+        }
 
-			_mapper.Map(dto, entity);
+        public async Task<IEnumerable<JobDto>> GetAllAsync()
+        {
+            var jobs = await _unitOfWork.GetRepository<Job, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
 
-			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+            return jobs.Select(ToDto).ToList();
+        }
 
-			repo.Update(entity);
-			await _unitOfWork.SaveChangesAsync();
+        public async Task<JobDto?> GetByIdAsync(int id)
+        {
+            var entity = await _unitOfWork.GetRepository<Job, int>()
+                .Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
-			return ToDto(entity, lang);
-		}
+            return entity is null ? null : ToDto(entity);
+        }
 
-		public async Task<IEnumerable<JobDto>> GetAllAsync(string? lang = "en")
-		{
-			return await _unitOfWork.GetRepository<Job, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(x => !x.IsDeleted)
-				.OrderByDescending(x => x.Id)
-				.SelectLocalized(lang)
-				.ToListAsync();
-		}
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var repo = _unitOfWork.GetRepository<Job, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-		public async Task<JobDto?> GetByIdAsync(int id, string? lang = "en")
-		{
-			return await _unitOfWork.GetRepository<Job, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(x => x.Id == id && !x.IsDeleted)
-				.SelectLocalized(lang)
-				.FirstOrDefaultAsync();
-		}
+            if (entity is null) return false;
+            if (entity.IsDeleted) return true;
 
-		public async Task<bool> DeleteAsync(int id)
-		{
-			var repo = _unitOfWork.GetRepository<Job, int>();
-			var entity = await repo.GetByIdAsync(id);
+            AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
 
-			if (entity is null) return false;
-			if (entity.IsDeleted) return true;
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
 
-			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+        public async Task<bool> RestoreAsync(int id)
+        {
+            var repo = _unitOfWork.GetRepository<Job, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-			repo.Update(entity);
-			await _unitOfWork.SaveChangesAsync();
-			return true;
-		}
+            if (entity is null) return false;
+            if (!entity.IsDeleted) return true;
 
-		public async Task<bool> RestoreAsync(int id)
-		{
-			var repo = _unitOfWork.GetRepository<Job, int>();
-			var entity = await repo.GetByIdAsync(id);
+            entity.IsDeleted = false;
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
 
-			if (entity is null) return false;
-			if (!entity.IsDeleted) return true;
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
 
-			entity.IsDeleted = false;
-			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
-
-			repo.Update(entity);
-			await _unitOfWork.SaveChangesAsync();
-			return true;
-		}
-
-		private static JobDto ToDto(Job x, string? lang)
-		{
-			var isAr = LangHelper.IsArabic(lang);
-
-			return new JobDto
-			{
-				Id = x.Id,
-				Title = isAr ? x.Title.Ar : x.Title.En,
-				Description = isAr ? x.Description.Ar : x.Description.En,
-				Location = isAr ? x.Location.Ar : x.Location.En,
-				EmploymentType = x.EmploymentType,
-				PostedAt = x.PostedAt,
-				Requirements = isAr ? x.Requirements.Ar : x.Requirements.En
-			};
-		}
-	}
+        private JobDto ToDto(Job x)
+        {
+            return new JobDto
+            {
+                Id = x.Id,
+                Title = _localization.GetLocalizedTitle(x),
+                Description = _localization.GetLocalizedDescription(x),
+                Location = x.Location,
+                EmploymentType = x.EmploymentType,
+                PostedAt = x.PostedAt,
+                Requirements = _localization.GetLocalizedList(x.RequirementsAr, x.RequirementsEn)
+            };
+        }
+    }
 
 }

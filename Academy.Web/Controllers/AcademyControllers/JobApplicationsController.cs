@@ -11,16 +11,24 @@ namespace Academy.Web.Controllers
 	public class JobApplicationsController(IServiceManager _serviceManager) : APIBaseController
 	{
 
-		[HttpPost]
-		public async Task<ActionResult<JobApplicationDto>> Add([FromForm] CreateJobApplicationDto dto)
-		{
-			var result = await _serviceManager.JobApplicationService.AddAsync(dto);
-			return Ok(result);
-		}
+        //[HttpPost]
+        //public async Task<ActionResult<JobApplicationDto>> Add([FromForm] CreateJobApplicationDto dto)
+        //{
+        //	var result = await _serviceManager.JobApplicationService.AddAsync(dto);
+        //	return Ok(result);
+        //}
+
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<JobApplicationDto>> Add([FromForm] CreateJobApplicationDto dto)
+        {
+            var result = await _serviceManager.JobApplicationService.AddAsync(dto);
+            return Ok(result);
+        }
 
 
 
-		[HttpDelete("{id}")]
+        [HttpDelete("{id}")]
 		public async Task<ActionResult<bool>> Delete(int id)
 		{
 			var result = await _serviceManager.JobApplicationService.DeleteAsync(id);

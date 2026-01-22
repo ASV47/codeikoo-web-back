@@ -10,12 +10,12 @@ namespace Academy.Web.Controllers
 	public class CourseUnitsController(IServiceManager serviceManager) : APIBaseController
 	{
 		[HttpGet]
-		public async Task<ActionResult<List<CourseUnitDto>>> GetAll([FromQuery] int? courseId, [FromQuery] string? lang = "en")
-	=> Ok(await serviceManager.CourseUnitService.GetAllAsync(courseId, lang));
+		public async Task<ActionResult<List<CourseUnitDto>>> GetAll([FromQuery] int? courseId)
+	=> Ok(await serviceManager.CourseUnitService.GetAllAsync(courseId));
 
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CourseUnitDto>> GetById(int id, [FromQuery] string? lang = "en")
-			=> Ok(await serviceManager.CourseUnitService.GetByIdAsync(id, lang));
+		public async Task<ActionResult<CourseUnitDto>> GetById(int id)
+			=> Ok(await serviceManager.CourseUnitService.GetByIdAsync(id));
 
 		[HttpPost]
 		public async Task<ActionResult<CourseUnitDto>> Add([FromBody] CreateCourseUnitDto dto)

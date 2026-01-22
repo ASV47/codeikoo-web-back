@@ -15,41 +15,43 @@ namespace Academy.Web.Controllers
 
 		[Authorize]
 		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll([FromQuery] string? lang = "en")
-	  => Ok(await serviceManager.CourseService.GetAllAsync(lang));
+		public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll()
+	  => Ok(await serviceManager.CourseService.GetAllAsync());
 
 		[Authorize]
 		[HttpGet("{id:int}")]
-		public async Task<ActionResult<CourseDto>> GetById(int id, [FromQuery] string? lang = "en")
-			=> Ok(await serviceManager.CourseService.GetByIdAsync(id, lang));
+		public async Task<ActionResult<CourseDto>> GetById(int id)
+			=> Ok(await serviceManager.CourseService.GetByIdAsync(id));
 
 		[Authorize]
 		[HttpGet("search")]
-		public async Task<ActionResult<IEnumerable<CourseDto>>> Search([FromQuery] string q, [FromQuery] string? lang = "en")
-			=> Ok(await serviceManager.CourseService.SearchAsync(q, lang));
-
+		public async Task<ActionResult<IEnumerable<CourseDto>>> Search([FromQuery] string q)
+			=> Ok(await serviceManager.CourseService.SearchAsync(q));
+       
+		
 		[Authorize]
-		[HttpPost]
-		[Consumes("multipart/form-data")]
-		public async Task<ActionResult<CourseDto>> Add([FromForm] CreateCourseDto dto/*, [FromQuery] string? lang = "en"*/)
-		{
-			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			if (string.IsNullOrWhiteSpace(userId))
-				return Unauthorized();
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<CourseDto>> Add([FromForm] CreateCourseDto dto)
+        {
+            // userId حسب نظامك: من التوكن مثلاً
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-			return Ok(await serviceManager.CourseService.AddAsync(userId, dto));
-		}
+            var result = await serviceManager.CourseService.AddAsync(userId!, dto);
+            return Ok(result);
+        }
 
-		[Authorize]
+
+        [Authorize]
 		[HttpPut("{id:int}")]
 		[Consumes("multipart/form-data")]
-		public async Task<ActionResult<CourseDto>> Update(int id, [FromForm] CreateCourseDto dto, [FromQuery] string? lang = "en")
+		public async Task<ActionResult<CourseDto>> Update(int id, [FromForm] CreateCourseDto dto)
 		{
 			var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			if (string.IsNullOrWhiteSpace(userId))
 				return Unauthorized();
 
-			return Ok(await serviceManager.CourseService.UpdateAsync(id, userId, dto, lang));
+			return Ok(await serviceManager.CourseService.UpdateAsync(id, userId, dto));
 		}
 
 

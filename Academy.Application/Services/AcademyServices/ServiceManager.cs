@@ -18,16 +18,16 @@ using System.Threading.Tasks;
 namespace Academy.Application.Services.AcademyServices
 {
     public class ServiceManager(UserManager<ApplicationUser> userManager, IConfiguration configuration,
-		IUnitOfWork unitOfWork, IMapper mapper, IEmailSender _emailSender, IFileStorageService storageService) : IServiceManager
+		IUnitOfWork unitOfWork, IMapper mapper, IEmailSender _emailSender, IFileStorageService storageService, ILocalizationService localizationService) : IServiceManager
     {
         private readonly Lazy<IAuthenticationService> _LazyAuthenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(userManager, configuration, _emailSender));
         private readonly Lazy<IContactMessageService> _LazyContactMessageService = new Lazy<IContactMessageService>(() => new ContactMessageService(unitOfWork, mapper));
-        private readonly Lazy<IJobService> _LazyJobService = new Lazy<IJobService>(() => new JobService(unitOfWork, mapper));
+        private readonly Lazy<IJobService> _LazyJobService = new Lazy<IJobService>(() => new JobService(unitOfWork, mapper, localizationService));
         private readonly Lazy<IJobApplicationService> _LazyJobApplicationService = new Lazy<IJobApplicationService>(() => new JobApplicationService(unitOfWork, mapper, storageService));
         private readonly Lazy<IInstructorApplicationService> _LazyInstructorApplicationService = new Lazy<IInstructorApplicationService>(() => new InstructorApplicationService(unitOfWork, mapper, storageService));
-        private readonly Lazy<ICourseService> _LazyCourseService = new(() => new CourseService(unitOfWork, mapper, storageService));
-        private readonly Lazy<ICourseUnitService> _LazyCourseUnitService = new(() => new CourseUnitService(unitOfWork, mapper));
-        private readonly Lazy<IUnitLessonService> _LazyUnitLessonService = new(() => new UnitLessonService(unitOfWork, mapper));
+        private readonly Lazy<ICourseService> _LazyCourseService = new(() => new CourseService(unitOfWork, mapper, storageService, localizationService));
+        private readonly Lazy<ICourseUnitService> _LazyCourseUnitService = new(() => new CourseUnitService(unitOfWork, mapper, localizationService));
+        private readonly Lazy<IUnitLessonService> _LazyUnitLessonService = new(() => new UnitLessonService(unitOfWork, mapper, localizationService));
         private readonly Lazy<IImageSliderService> _LazyImageSliderService = new(() => new ImageSliderService(unitOfWork, mapper, storageService));
 
 		#region Company

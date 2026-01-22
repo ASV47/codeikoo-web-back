@@ -13,108 +13,123 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-	public class UnitLessonService(IUnitOfWork unitOfWork, IMapper mapper) : IUnitLessonService
+	public class UnitLessonService : IUnitLessonService
 	{
-		public async Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto, string? lang = "en")
-		{
-			var unit = await unitOfWork.GetRepository<CourseUnit, int>()
-				.Query()
-				.AsNoTracking()
-				.FirstOrDefaultAsync(u => u.Id == dto.CourseUnitId && !u.IsDeleted);
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IMapper mapper;
+        private readonly ILocalizationService localization;
 
-			if (unit is null) throw new ArgumentException("Course unit not found.");
+        public UnitLessonService(IUnitOfWork unitOfWork, IMapper mapper, ILocalizationService localization)
+        {
+            this.unitOfWork = unitOfWork;
+            this.mapper = mapper;
+            this.localization = localization;
+        }
 
-			var entity = mapper.Map<UnitLesson>(dto);
+        public async Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto)
+        {
+            var unit = await unitOfWork.GetRepository<CourseUnit, int>()
+                .Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == dto.CourseUnitId && !u.IsDeleted);
 
-			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+            if (unit is null) throw new ArgumentException("Course unit not found.");
 
-			await unitOfWork.GetRepository<UnitLesson, int>().AddAsync(entity);
-			await unitOfWork.SaveChangesAsync();
+            var entity = mapper.Map<UnitLesson>(dto);
 
-			return mapper.Map<UnitLessonDto>(entity, opt => opt.Items["lang"] = lang);
-		}
+            AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
+            await unitOfWork.GetRepository<UnitLesson, int>().AddAsync(entity);
+            await unitOfWork.SaveChangesAsync();
 
-		public async Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null, string? lang = "en")
-		{
-			var query = unitOfWork.GetRepository<UnitLesson, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(l => !l.IsDeleted);
+            return ToDto(entity);
+        }
 
-			if (courseUnitId.HasValue)
-				query = query.Where(l => l.CourseUnitId == courseUnitId.Value);
+        public async Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null)
+        {
+            var query = unitOfWork.GetRepository<UnitLesson, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(l => !l.IsDeleted);
 
-			var entities = await query
-				.OrderByDescending(l => l.Id)
-				.ToListAsync();
+            if (courseUnitId.HasValue)
+                query = query.Where(l => l.CourseUnitId == courseUnitId.Value);
 
-			return mapper.Map<List<UnitLessonDto>>(entities, opt => opt.Items["lang"] = lang);
-		}
+            var entities = await query
+                .OrderByDescending(l => l.Id)
+                .ToListAsync();
 
+            return entities.Select(ToDto).ToList();
+        }
 
-		public async Task<UnitLessonDto> GetByIdAsync(int id, string? lang = "en")
-		{
-			var entity = await unitOfWork.GetRepository<UnitLesson, int>()
-				.Query()
-				.AsNoTracking()
-				.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+        public async Task<UnitLessonDto> GetByIdAsync(int id)
+        {
+            var entity = await unitOfWork.GetRepository<UnitLesson, int>()
+                .Query()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
-			if (entity is null) throw new ArgumentException("Lesson not found.");
+            if (entity is null) throw new ArgumentException("Lesson not found.");
 
-			return mapper.Map<UnitLessonDto>(entity, opt => opt.Items["lang"] = lang);
-		}
+            return ToDto(entity);
+        }
 
+        public async Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto)
+        {
+            var repo = unitOfWork.GetRepository<UnitLesson, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-		public async Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto, string? lang = "en")
-		{
-			var repo = unitOfWork.GetRepository<UnitLesson, int>();
-			var entity = await repo.GetByIdAsync(id);
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Lesson not found.");
 
-			if (entity is null || entity.IsDeleted)
-				throw new ArgumentException("Lesson not found.");
+            mapper.Map(dto, entity);
 
-			mapper.Map(dto, entity);
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
 
-			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
 
-			repo.Update(entity);
-			await unitOfWork.SaveChangesAsync();
+            return ToDto(entity);
+        }
 
-			return mapper.Map<UnitLessonDto>(entity, opt => opt.Items["lang"] = lang);
-		}
+        public async Task DeleteAsync(int id)
+        {
+            var repo = unitOfWork.GetRepository<UnitLesson, int>();
+            var entity = await repo.GetByIdAsync(id);
 
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Lesson not found.");
 
-		public async Task DeleteAsync(int id)
-		{
-			var repo = unitOfWork.GetRepository<UnitLesson, int>();
-			var entity = await repo.GetByIdAsync(id);
+            AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
 
-			if (entity is null || entity.IsDeleted)
-				throw new ArgumentException("Lesson not found.");
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
+        }
 
-			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+        public async Task RestoreAsync(int id)
+        {
+            var repo = unitOfWork.GetRepository<UnitLesson, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-			repo.Update(entity);
-			await unitOfWork.SaveChangesAsync();
-		}
+            if (entity is null) throw new ArgumentException("Lesson not found.");
+            if (!entity.IsDeleted) return;
 
+            entity.IsDeleted = false;
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
 
-		// ✅ Restore
-		public async Task RestoreAsync(int id)
-		{
-			var repo = unitOfWork.GetRepository<UnitLesson, int>();
-			var entity = await repo.GetByIdAsync(id);
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
+        }
 
-			if (entity is null) throw new ArgumentException("Lesson not found.");
-			if (!entity.IsDeleted) return;
-
-			entity.IsDeleted = false;
-			AuditHelper.SetModified(entity, AuditDefaults.AdminId);
-
-			repo.Update(entity);
-			await unitOfWork.SaveChangesAsync();
-		}
-	}
+        private UnitLessonDto ToDto(UnitLesson x)
+        {
+            return new UnitLessonDto
+            {
+                Id = x.Id,
+                CourseUnitId = x.CourseUnitId,
+                Title = localization.GetLocalizedTitle(x)
+            };
+        }
+    }
 
 }

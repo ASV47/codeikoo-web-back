@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Academy.Interfaces.DTOs
+namespace Academy.Infrastructure.Entities.AcademyEntities
 {
-	public class CreateCourseUnitDto
-	{
-        public int CourseId { get; set; }
+    public class LocalizableEntity : BaseEntity<int>
+    {
         public string TilteArabic { get; set; } = default!;
         public string TitleEnglish { get; set; } = default!;
+        public string? DescriptionAr { get; set; }
+        public string? DescriptionEn { get; set; }
     }
 }

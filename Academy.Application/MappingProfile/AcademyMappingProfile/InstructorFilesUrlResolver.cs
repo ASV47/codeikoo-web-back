@@ -14,9 +14,8 @@ namespace Academy.Application.MappingProfile.AcademyMappingProfile
     {
         public string Resolve(InstructorApplication source, InstructorApplicationDto destination, string destMember, ResolutionContext context)
         {
-           
-            return UploadcareUrlHelpers.ResolveUrl(source.CvFilePath, configuration["BaseUrl"], isImage: true);
-
+            var url = UploadcareUrlHelpers.ResolveUrl(source.CvFilePath, configuration["BaseUrl"], isImage: false);
+            return string.IsNullOrWhiteSpace(url) ? string.Empty : url.TrimEnd('/') + "/-/inline/yes/";
         }
     }
 }

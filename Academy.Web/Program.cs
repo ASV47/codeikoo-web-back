@@ -1,5 +1,6 @@
 ﻿using Academy.Application.MappingProfile.AcademyMappingProfile;
 using Academy.Application.Repositories;
+using Academy.Application.Services;
 using Academy.Application.Services.AcademyServices;
 using Academy.Infrastructure.Data;
 using Academy.Infrastructure.Entities.AcademyEntities;
@@ -10,6 +11,8 @@ using Academy.Interfaces.IServices.IAcademyServices;
 using Academy.Web.CustomMiddlewares;
 using Academy.Web.ErrorsModel;
 using CoreLayer.Entities;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +23,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ServiceLayer.Mapping;
 using System.Text;
+
+
 
 namespace Academy.Web
 {
@@ -79,6 +84,11 @@ namespace Academy.Web
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<IFileStorageService, UploadcareFileStorageService>();
 
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddFluentValidationClientsideAdapters();
+
+            builder.Services.AddValidatorsFromAssemblyContaining<RegisterDTOValidator>();
+
 
             builder.Services.AddAutoMapper(typeof(ApplicationProfile));
             builder.Services.AddAutoMapper(typeof(CoursesProfile));
@@ -87,6 +97,8 @@ namespace Academy.Web
             builder.Services.AddAutoMapper(typeof(TechnologyProfile));
             builder.Services.AddAutoMapper(typeof(ClientProfile));
 
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ILocalizationService, LocalizationService>();
             //builder.Services.AddScoped<IdentityDataSeeder>();
 
 
@@ -171,6 +183,7 @@ namespace Academy.Web
             
             // Middleware
             app.UseMiddleware<CustomExceptionHandler>();
+            app.UseMiddleware<RequestLanguageMiddleware>();
             app.UseCors("AllowAll");
 
             // ✅ Swagger in ALL environments (Option 1)

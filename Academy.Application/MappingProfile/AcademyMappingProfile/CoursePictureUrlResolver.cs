@@ -14,9 +14,12 @@ namespace Academy.Application.MappingProfile.AcademyMappingProfile
     {
         public string Resolve(Course source, CourseDto destination, string destMember, ResolutionContext context)
         {
-            
-            return UploadcareUrlHelpers.ResolveUrl(source.CourseImage, configuration["BaseUrl"], isImage: true);
-
+            return UploadcareUrlHelpers.ResolveUrl(
+                source.CourseImage,
+                configuration["BaseUrl"],
+                isImage: true,
+                imageOperation: "/-/preview/"
+            );
         }
 
     }

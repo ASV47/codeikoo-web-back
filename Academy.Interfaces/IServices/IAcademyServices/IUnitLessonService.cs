@@ -9,13 +9,11 @@ namespace Academy.Interfaces.IServices
 {
 	public interface IUnitLessonService
 	{
-		Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto, string? lang = "en");
-
-		Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null, string? lang = "en");
-		Task<UnitLessonDto> GetByIdAsync(int id, string? lang = "en");
-
-		Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto, string? lang = "en");
-		Task DeleteAsync(int id);
-		Task RestoreAsync(int id);
-	}
+        Task<UnitLessonDto> AddAsync(CreateUnitLessonDto dto);
+        Task<List<UnitLessonDto>> GetAllAsync(int? courseUnitId = null);
+        Task<UnitLessonDto> GetByIdAsync(int id);
+        Task<UnitLessonDto> UpdateAsync(int id, CreateUnitLessonDto dto);
+        Task DeleteAsync(int id);
+        Task RestoreAsync(int id);
+    }
 }
