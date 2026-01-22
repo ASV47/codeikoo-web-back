@@ -1,0 +1,16 @@
+[
+  {
+    "StudentName": "Ahmed Ali",
+    "StudentEmail": "ahmed.ali@gmail.com",
+    "PhoneNumber": "01123456789",
+    "EnrollmentDate": "2025-12-05",
+    "CourseId": 1
+  },
+  {
+    "StudentName": "Youssef Hassan",
+    "StudentEmail": "youssef.hassan@gmail.com",
+    "PhoneNumber": "01598765432",
+    "EnrollmentDate": "2025-12-15",
+    "CourseId": 2
+  }
+]

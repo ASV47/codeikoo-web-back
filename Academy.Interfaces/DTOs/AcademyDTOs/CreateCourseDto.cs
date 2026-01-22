@@ -9,13 +9,16 @@ namespace Academy.Interfaces.DTOs
 {
 	public class CreateCourseDto
 	{
-		public string TitleAr { get; set; } = default!;
-		public string TitleEn { get; set; } = default!;
-		public string DescriptionAr { get; set; } = default!;
-		public string DescriptionEn { get; set; } = default!;
-		public int Duration { get; set; }
-		public List<string> FeaturesAr { get; set; } = new();
-		public List<string> FeaturesEn { get; set; } = new();
-		public IFormFile? CourseImage { get; set; }
-	}
+        public string TilteArabic { get; set; } = default!;
+        public string TitleEnglish { get; set; } = default!;
+        public string? DescriptionAr { get; set; }
+        public string? DescriptionEn { get; set; }
+
+        public int Duration { get; set; }
+
+        public List<string> FeaturesAr { get; set; } = new();
+        public List<string> FeaturesEn { get; set; } = new();
+
+        public IFormFile? CourseImage { get; set; }
+    }
 }

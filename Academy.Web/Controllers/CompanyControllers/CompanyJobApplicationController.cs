@@ -28,14 +28,14 @@ namespace PresentationLayer.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<CompanyJopApplicationDTO>>> GetAll()
 		{
-			var result = await _serviceManager.JobApplicationService.GetAllAsync();
+			var result = await _serviceManager.CompanyJobApplicationService.GetAllAsync();
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<CompanyJopApplicationDTO>> GetById(int id)
 		{
-			var result = await _serviceManager.JobApplicationService.GetByIdAsync(id);
+			var result = await _serviceManager.CompanyJobApplicationService.GetByIdAsync(id);
 			if (result == null) return NotFound();
 			return Ok(result);
 		}
@@ -43,7 +43,7 @@ namespace PresentationLayer.Controllers
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var isDeleted = await _serviceManager.JobApplicationService.DeleteAsync(id);
+			var isDeleted = await _serviceManager.CompanyJobApplicationService.DeleteAsync(id);
 			if (!isDeleted) return NotFound(new { Message = "Application not found" });
 			return Ok(new { Message = "Deleted Successfully" });
 		}

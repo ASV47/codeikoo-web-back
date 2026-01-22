@@ -10,16 +10,29 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.MappingProfile.AcademyMappingProfile
 {
+    //public class JobApplicationFilesUrlResolver(IConfiguration configuration)
+    //: IValueResolver<JobApplication, JobApplicationDto, string>
+    //{
+    //    public string Resolve(JobApplication source, JobApplicationDto destination, string destMember, ResolutionContext context)
+    //    {
+    //        return UploadcareUrlHelpers.ResolveUrl(source.CvFilePath , configuration["BaseUrl"], isImage: true);
+    //    }
+    //}
+
     public class JobApplicationFilesUrlResolver(IConfiguration configuration)
     : IValueResolver<JobApplication, JobApplicationDto, string>
     {
+        //public string Resolve(JobApplication source, JobApplicationDto destination, string destMember, ResolutionContext context)
+        //{
+        //    return UploadcareUrlHelpers.ResolveUrl(source.CvFilePath, configuration["BaseUrl"], isImage: false);
+        //}
         public string Resolve(JobApplication source, JobApplicationDto destination, string destMember, ResolutionContext context)
         {
-            if (string.IsNullOrEmpty(source.CvFilePath))
-                return string.Empty;
-
-            var baseUrl = configuration["BaseUrl"]?.TrimEnd('/') ?? "https://localhost:7267";
-            return $"{baseUrl}{source.CvFilePath}";
+            var url = UploadcareUrlHelpers.ResolveUrl(source.CvFilePath, configuration["BaseUrl"], isImage: false);
+            return url.TrimEnd('/') + "/-/inline/yes/";
         }
+
+
     }
+
 }

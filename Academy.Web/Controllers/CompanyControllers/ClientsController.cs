@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace PresentationLayer.Controllers
 {
 	[ApiExplorerSettings(GroupName = "Company")]
-	public class ClientsController(IServiceManager _serviceManager) : APIBaseController
+	public class ClientsController(IServiceManager _serviceManager, IWebHostEnvironment env) : APIBaseController
 	{
 		[HttpGet]
 		public async Task<ActionResult> GetAll()
@@ -31,48 +31,36 @@ namespace PresentationLayer.Controllers
 			return Ok(result);
 		}
 
-		[HttpPost]
-		public async Task<ActionResult> Add([FromForm] CreateClientDto dto)
-		{
-			var path = DocumentSettings.UploadFile(dto.Image, "ClientsLogo");
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Add([FromForm] CreateClientDto dto)
+        {
+            await _serviceManager.clientService.AddAsync(dto.Image);
+            return Ok(new { Message = "Client Logo Added Successfully" });
+        }
 
-			await _serviceManager.clientService.AddAsync(path);
-			return Ok(new { Message = "Client Logo Added Successfully" });
-		}
 
-		[HttpPut("{id}")]
-		public async Task<ActionResult> Update(int id, [FromForm] CreateClientDto dto)
-		{
-			var existingClient = await _serviceManager.clientService.GetByIdAsync(id);
-			if (existingClient == null) return NotFound(new { Message = "Client not found" });
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> Update(int id, [FromForm] CreateClientDto dto)
+        {
+            var result = await _serviceManager.clientService.UpdateAsync(id, dto.Image);
 
-			string? finalPath = null;
+            return result
+                ? Ok(new { Message = "Client Logo Updated Successfully" })
+                : NotFound(new { Message = "Client not found" });
+        }
 
-			if (dto.Image != null)
-			{
-				var oldPath = existingClient.LogoUrl.Replace("https://localhost:7048", "");
-				DocumentSettings.DeleteFile(oldPath);
 
-				finalPath = DocumentSettings.UploadFile(dto.Image, "ClientsLogo");
-			}
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var ok = await _serviceManager.clientService.DeleteAsync(id);
 
-			var result = await _serviceManager.clientService.UpdateAsync(id, finalPath);
+            return ok
+                ? Ok(new { Message = "Deleted Successfully" })
+                : NotFound();
+        }
 
-			return result ? Ok(new { Message = "Client Logo Updated Successfully" }) : BadRequest();
-		}
-
-		[HttpDelete("{id}")]
-		public async Task<ActionResult> Delete(int id)
-		{
-			var clientDto = await _serviceManager.clientService.GetByIdAsync(id);
-			if (clientDto == null) return NotFound();
-
-			var relativePath = clientDto.LogoUrl.Replace("https://localhost:7048/", "");
-			DocumentSettings.DeleteFile(relativePath);
-
-			await _serviceManager.clientService.DeleteAsync(id);
-
-			return Ok(new { Message = "Deleted Successfully" });
-		}
-	}
+    }
 }

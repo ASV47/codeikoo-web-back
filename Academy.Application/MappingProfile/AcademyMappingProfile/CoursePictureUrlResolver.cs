@@ -14,11 +14,13 @@ namespace Academy.Application.MappingProfile.AcademyMappingProfile
     {
         public string Resolve(Course source, CourseDto destination, string destMember, ResolutionContext context)
         {
-            if (string.IsNullOrWhiteSpace(source.CourseImage))
-                return string.Empty;
-
-            var baseUrl = configuration["BaseUrl"]?.TrimEnd('/') ?? "https://localhost:7267";
-            return $"{baseUrl}{source.CourseImage}";
+            return UploadcareUrlHelpers.ResolveUrl(
+                source.CourseImage,
+                configuration["BaseUrl"],
+                isImage: true,
+                imageOperation: "/-/preview/"
+            );
         }
+
     }
 }

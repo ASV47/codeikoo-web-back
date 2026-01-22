@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Academy.Infrastructure.Entities.AcademyEntities
 {
-    public class CourseUnit : BaseEntity<int>
+    public class CourseUnit : LocalizableEntity
     {
-		public LocalizedString Title { get; set; } = new();
 		public int CourseId { get; set; }
+
     }
 }

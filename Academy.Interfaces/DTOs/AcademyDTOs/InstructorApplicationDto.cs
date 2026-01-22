@@ -16,6 +16,5 @@ namespace Academy.Interfaces.DTOs
 		public string LinkedInUrl { get; set; } = default!;
 		public string CvFilePath { get; set; } = default!;
 		public DateTime AppliedAt { get; set; }
-		//public string UserId { get; set; } = default!;
 	}
 }

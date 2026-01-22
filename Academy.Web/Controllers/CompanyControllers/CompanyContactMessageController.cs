@@ -30,14 +30,14 @@ namespace PresentationLayer.Controllers
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<CompanyContactMessageDTO>>> GetAll()
 		{
-			var result = await _serviceManager.ContactMessageService.GetAllAsync();
+			var result = await _serviceManager.CompanyContactMessageService.GetAllAsync();
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<ActionResult<CompanyContactMessageDTO>> GetById(int id)
 		{
-			var result = await _serviceManager.ContactMessageService.GetByIdAsync(id);
+			var result = await _serviceManager.CompanyContactMessageService.GetByIdAsync(id);
 			if (result == null) return NotFound();
 			return Ok(result);
 		}
@@ -45,7 +45,7 @@ namespace PresentationLayer.Controllers
 		[HttpDelete("{id}")]
 		public async Task<ActionResult> Delete(int id)
 		{
-			var isDeleted = await _serviceManager.ContactMessageService.DeleteAsync(id);
+			var isDeleted = await _serviceManager.CompanyContactMessageService.DeleteAsync(id);
 			if (!isDeleted) return NotFound(new { Message = "Message not found" });
 			return Ok(new { Message = "Deleted Successfully" });
 		}

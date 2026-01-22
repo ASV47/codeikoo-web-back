@@ -10,5 +10,6 @@ namespace Academy.Infrastructure.Entities.AcademyEntities
     public class ApplicationUser : IdentityUser
     {
         public string DisplayName { get; set; } = default!;
+        public string Governorate { get; set; } = default!;
     }
 }

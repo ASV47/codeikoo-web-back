@@ -41,5 +41,5 @@ namespace Academy.Web.Controllers
 			return Ok(result);
 		}
 
-	}
+    }
 }

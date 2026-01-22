@@ -19,19 +19,40 @@ namespace Academy.Web.CustomMiddlewares
 			try
 			{
 				await _next.Invoke(_httpContext);
-				if (_httpContext.Response.StatusCode == StatusCodes.Status404NotFound)
-				{
-					var Response = new ErrorToReturn()
-					{
-						StatusCode = StatusCodes.Status404NotFound,
-						ErrorMessage = $"End Point {_httpContext.Request.Path} is Not Found"
-					};
+                //if (_httpContext.Response.StatusCode == StatusCodes.Status404NotFound
+                //                 &&!_httpContext.Request.Path.StartsWithSegments("/Images") &&
+                //	   !_httpContext.Request.Path.StartsWithSegments("/Files") &&
+                //	   !_httpContext.Response.HasStarted)
+                //{
+                //	var Response = new ErrorToReturn()
+                //	{
+                //		StatusCode = StatusCodes.Status404NotFound,
+                //		ErrorMessage = $"End Point {_httpContext.Request.Path} is Not Found"
+                //	};
 
-					await _httpContext.Response.WriteAsJsonAsync(Response);
+                //	await _httpContext.Response.WriteAsJsonAsync(Response);
 
-				}
-			}
-			catch (Exception ex)
+                //}
+
+                if (_httpContext.Response.StatusCode == StatusCodes.Status404NotFound &&
+								!_httpContext.Request.Path.StartsWithSegments("/swagger") &&
+								!_httpContext.Request.Path.StartsWithSegments("/Images") &&
+								!_httpContext.Request.Path.StartsWithSegments("/Files") &&
+								!_httpContext.Response.HasStarted)
+                {
+                    _httpContext.Response.Clear();
+
+                    var Response = new ErrorToReturn()
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        ErrorMessage = $"End Point {_httpContext.Request.Path} is Not Found"
+                    };
+
+                    await _httpContext.Response.WriteAsJsonAsync(Response);
+                }
+
+            }
+            catch (Exception ex)
 			{
 				_logger.LogError("Something Went Wrong");
 				Console.WriteLine(ex);

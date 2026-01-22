@@ -3,7 +3,9 @@ using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.IServices.IAcademyServices;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,44 +15,48 @@ using System.Threading.Tasks;
 
 namespace Academy.Application.Services.AcademyServices
 {
-	public class InstructorApplicationService(IUnitOfWork _unitOfWork, IMapper _mapper) : IInstructorApplicationService
+	public class InstructorApplicationService(IUnitOfWork _unitOfWork,
+		IMapper _mapper, IFileStorageService fileStorage) : IInstructorApplicationService
 	{
-		public async Task<InstructorApplicationDto> AddAsync(CreateInstructorApplicationDto dto)
-		{
-			string cvPath = string.Empty;
+        public async Task<InstructorApplicationDto> AddAsync(CreateInstructorApplicationDto dto)
+        {
+            if (dto is null)
+                throw new ArgumentNullException(nameof(dto));
+            string cvUrl = string.Empty;
 
-			if (dto.CvFile is not null)
-				cvPath = DocumentSettings.UploadFile(dto.CvFile, "InstructorCVs");
+            if (dto.CvFile is not null)
+                cvUrl = await fileStorage.UploadAsync(dto.CvFile, "InstructorCVs");
 
-			var entity = _mapper.Map<InstructorApplication>(dto);
-			entity.CvFilePath = cvPath;
+            var entity = _mapper.Map<InstructorApplication>(dto);
+            entity.CvFilePath = cvUrl;
 
-			// ✅ Audit (Created)
-			AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
+            AuditHelper.SetCreated(entity, AuditDefaults.AdminId);
 
-			await _unitOfWork.GetRepository<InstructorApplication, int>().AddAsync(entity);
-			await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.GetRepository<InstructorApplication, int>().AddAsync(entity);
+            await _unitOfWork.SaveChangesAsync();
 
-			return _mapper.Map<InstructorApplicationDto>(entity);
-		}
+            return _mapper.Map<InstructorApplicationDto>(entity);
+        }
 
-		public async Task<bool> DeleteAsync(int id)
-		{
-			var repo = _unitOfWork.GetRepository<InstructorApplication, int>();
-			var entity = await repo.GetByIdAsync(id);
 
-			if (entity is null) return false;
-			if (entity.IsDeleted) return true;
 
-			// ✅ SoftDelete فقط (من غير حذف الملف)
-			AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var repo = _unitOfWork.GetRepository<InstructorApplication, int>();
+            var entity = await repo.GetByIdAsync(id);
 
-			repo.Update(entity);
-			await _unitOfWork.SaveChangesAsync();
-			return true;
-		}
+            if (entity is null) return false;
+            if (entity.IsDeleted) return true;
 
-		public async Task<IEnumerable<InstructorApplicationDto>> GetAllAsync()
+            AuditHelper.SetSoftDeleted(entity, AuditDefaults.AdminId);
+
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+            return true;
+        }
+
+
+        public async Task<IEnumerable<InstructorApplicationDto>> GetAllAsync()
 		{
 			var entities = await _unitOfWork.GetRepository<InstructorApplication, int>()
 				.Query()

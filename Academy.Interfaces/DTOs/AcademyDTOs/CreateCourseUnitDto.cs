@@ -8,8 +8,8 @@ namespace Academy.Interfaces.DTOs
 {
 	public class CreateCourseUnitDto
 	{
-		public int CourseId { get; set; }
-		public string TitleAr { get; set; } = default!;
-		public string TitleEn { get; set; } = default!;
-	}
+        public int CourseId { get; set; }
+        public string TilteArabic { get; set; } = default!;
+        public string TitleEnglish { get; set; } = default!;
+    }
 }

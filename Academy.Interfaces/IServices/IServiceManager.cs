@@ -1,4 +1,5 @@
 ﻿using AbstractionLayer;
+using Academy.Interfaces.IServices.IAcademyServices;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +18,10 @@ namespace Academy.Interfaces.IServices
 		ICourseService CourseService { get; }
 		ICourseUnitService CourseUnitService { get; }
 		IUnitLessonService UnitLessonService { get; }
+		IImageSliderService ImageSliderService { get; }
 
-		#region Company
-		ICompanyCourseService CompanyCourseService { get; }
+        #region Company
+        ICompanyCourseService CompanyCourseService { get; }
 		IArticleService ArticleService { get; }
 		ICompanyJobApplicationService CompanyJobApplicationService { get; }
 		ICompanyContactMessageService CompanyContactMessageService { get; }

@@ -16,7 +16,7 @@ namespace ServiceLayer.Mapping
 			if (string.IsNullOrEmpty(source.TechnologyUrl))
 				return string.Empty;
 			else
-				return $"{"https://codeikoo.runasp.net/"}{source.TechnologyUrl}";
+				return $"{"http://api.codeikoo.com/"}{source.TechnologyUrl}";
 		}
 	}
 }

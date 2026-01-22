@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using Academy.Application;
+using AutoMapper;
 using AutoMapper.Execution;
 using CoreLayer.Entities;
+using Microsoft.Extensions.Configuration;
 using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
@@ -10,14 +12,12 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.Mapping
 {
-	public class ClientPictureUrlResolver : IValueResolver<Client, ClientDto, string>
+	public class ClientPictureUrlResolver(IConfiguration configuration) : IValueResolver<Client, ClientDto, string>
 	{
 		public string Resolve(Client source, ClientDto destination, string destMember, ResolutionContext context)
 		{
-			if (string.IsNullOrEmpty(source.LogoUrl))
-				return string.Empty;
-			else
-				return $"{"https://codeikoo.runasp.net/"}{source.LogoUrl}";
-		}
-	}
+            return UploadcareUrlHelpers.ResolveUrl(source.LogoUrl, configuration["BaseUrl"], isImage: true);
+
+        }
+    }
 }

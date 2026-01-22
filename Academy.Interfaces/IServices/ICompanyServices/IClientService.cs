@@ -1,4 +1,5 @@
-﻿using SharedLayer.DTO;
+﻿using Microsoft.AspNetCore.Http;
+using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace AbstractionLayer
 	{
 		Task<IEnumerable<ClientDto>> GetAllAsync();
 		Task<ClientDto?> GetByIdAsync(int id);
-		Task AddAsync(string logoUrl);
+		Task AddAsync(IFormFile? image);
+		Task<bool> UpdateAsync(int id, IFormFile? image);
 		Task<bool> DeleteAsync(int id);
-		Task<bool> UpdateAsync(int id, string logoUrl);
 	}
 }

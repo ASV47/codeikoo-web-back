@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using Academy.Application;
+using AutoMapper;
 using CoreLayer.Entities;
+using Microsoft.Extensions.Configuration;
 using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
@@ -9,15 +11,11 @@ using System.Threading.Tasks;
 
 namespace ServiceLayer.Mapping
 {
-	public class ArticlePictureUrlResolver : IValueResolver<Article, ArticleDTO, string>
+	public class ArticlePictureUrlResolver(IConfiguration configuration) : IValueResolver<Article, ArticleDTO, string>
 	{
 		public string Resolve(Article source, ArticleDTO destination, string destMember, ResolutionContext context)
 		{
-			if (string.IsNullOrEmpty(source.ImageUrl))
-				return string.Empty;
-
-			// لاحظ مفيش / بعد الـ Port لأن المسار المخزن بيبدأ بـ /
-			return $"https://codeikoo.runasp.net/{source.ImageUrl}";
-		}
-	}
+            return UploadcareUrlHelpers.ResolveUrl(source.ImageUrl, configuration["BaseUrl"], isImage: true);
+        }
+    }
 }

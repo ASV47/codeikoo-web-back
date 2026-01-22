@@ -4,6 +4,7 @@ using CoreLayer.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,14 +123,27 @@ namespace Academy.Infrastructure.Data
 
 			modelBuilder.Entity<WebSettings>()
 				.ToTable("WebSettings", schema: CompanySchema.CompanyDBSchema);
-			#endregion
+            #endregion
 
-		}
+            var stringListConverter = new ValueConverter<List<string>, string>(
+        v => JsonSerializer.Serialize(v ?? new(), (JsonSerializerOptions?)null),
+        v => string.IsNullOrWhiteSpace(v)
+            ? new List<string>()
+            : JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions?)null) ?? new List<string>()
+    );
+
+            modelBuilder.Entity<Job>(b =>
+            {
+                b.Property(x => x.RequirementsAr).HasConversion(stringListConverter).HasColumnType("nvarchar(max)");
+                b.Property(x => x.RequirementsEn).HasConversion(stringListConverter).HasColumnType("nvarchar(max)");
+            });
+        }
 
 		public DbSet<ContactMessage> ContactMessages { get; set; }
 		public DbSet<Job> Jobs { get; set; }
 		public DbSet<JobApplication> JobApplications { get; set; }
-		public DbSet<InstructorApplication> InstructorApplications { get; set; }
+		public DbSet<ImageSlider> ImageSliders { get; set; }
+        public DbSet<InstructorApplication> InstructorApplications { get; set; }
 
 
 		#region Company

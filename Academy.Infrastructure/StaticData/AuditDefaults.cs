@@ -8,6 +8,6 @@ namespace Academy.Infrastructure.StaticData
 {
 	public static class AuditDefaults
 	{
-		public const string AdminId = "8495c652dbee";
+		public const string AdminId = "395526b6-dfdf-43d4-a864-da6d99a8ef85";
 	}
 }

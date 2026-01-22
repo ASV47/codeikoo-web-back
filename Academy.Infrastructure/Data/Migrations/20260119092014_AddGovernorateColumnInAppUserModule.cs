@@ -5,15 +5,14 @@
 namespace Academy.Infrastructure.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentitySeeder : Migration
+    public partial class AddGovernorateColumnInAppUserModule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "PhoneNumber",
-                schema: "Academy",
-                table: "InstructorApplications",
+                name: "Governorate",
+                table: "Users",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
@@ -23,9 +22,8 @@ namespace Academy.Infrastructure.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PhoneNumber",
-                schema: "Academy",
-                table: "InstructorApplications");
+                name: "Governorate",
+                table: "Users");
         }
     }
 }
