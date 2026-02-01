@@ -19,6 +19,7 @@ namespace Academy.Interfaces.IServices
 		ICourseUnitService CourseUnitService { get; }
 		IUnitLessonService UnitLessonService { get; }
 		IImageSliderService ImageSliderService { get; }
+		IStudentCourseCommentService StudentCourseCommentService { get; }
 
         #region Company
         ICompanyCourseService CompanyCourseService { get; }
