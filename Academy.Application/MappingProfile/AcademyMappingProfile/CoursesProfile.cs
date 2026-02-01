@@ -1,6 +1,7 @@
 ﻿using Academy.Infrastructure.Entities.AcademyEntities;
 using Academy.Infrastructure.LangHelper;
 using Academy.Interfaces.DTOs;
+using Academy.Interfaces.DTOs.AcademyDTOs;
 using Academy.Interfaces.Interfaces;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +39,9 @@ namespace Academy.Application.MappingProfile.AcademyMappingProfile
                     .ForMember(d => d.TilteArabic, opt => opt.MapFrom(s => s.TilteArabic))
                     .ForMember(d => d.TitleEnglish, opt => opt.MapFrom(s => s.TitleEnglish));
 
-           
+
+            CreateMap<StudentCourseComment, StudentCourseCommentDto>();
+            CreateMap<StudentCourseCommentCreateDto, StudentCourseComment>();
         }
     }
 }

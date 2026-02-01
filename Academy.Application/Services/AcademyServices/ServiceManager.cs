@@ -29,6 +29,7 @@ namespace Academy.Application.Services.AcademyServices
         private readonly Lazy<ICourseUnitService> _LazyCourseUnitService = new(() => new CourseUnitService(unitOfWork, mapper, localizationService));
         private readonly Lazy<IUnitLessonService> _LazyUnitLessonService = new(() => new UnitLessonService(unitOfWork, mapper, localizationService));
         private readonly Lazy<IImageSliderService> _LazyImageSliderService = new(() => new ImageSliderService(unitOfWork, mapper, storageService));
+        private readonly Lazy<IStudentCourseCommentService> _LazyStudentCourseCommentService = new(() => new StudentCourseCommentService(unitOfWork, mapper));
 
 		#region Company
 		private readonly Lazy<ICompanyCourseService> _LazyCompanyCourseService = new Lazy<ICompanyCourseService>(() => new CompanyCourseService(unitOfWork, mapper));
@@ -59,6 +60,7 @@ namespace Academy.Application.Services.AcademyServices
         public ICourseUnitService CourseUnitService => _LazyCourseUnitService.Value;
         public IUnitLessonService UnitLessonService => _LazyUnitLessonService.Value;
         public IImageSliderService ImageSliderService => _LazyImageSliderService.Value;
+        public IStudentCourseCommentService StudentCourseCommentService => _LazyStudentCourseCommentService.Value;
 
 
         #region Company
@@ -79,6 +81,7 @@ namespace Academy.Application.Services.AcademyServices
 		public IFlexibilitySectionService flexibilitySectionService => _LazyFlexibilitySectionService.Value;
 		public IFlexibilityItemService flexibilityItemService => _LazyFlexibilityItemService.Value;
 		public IWebSettingsService webSettingsService => _LazyWebSettingsService.Value;
+
 
         #endregion
 

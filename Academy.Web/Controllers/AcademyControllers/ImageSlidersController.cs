@@ -1,12 +1,14 @@
 ﻿using Academy.Interfaces.DTOs.AcademyDTOs;
 using Academy.Interfaces.IServices;
+using Academy.Web.Hubs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Academy.Web.Controllers.AcademyControllers
 {
     [ApiExplorerSettings(GroupName = "Academy")]
-    public class ImageSlidersController(IServiceManager serviceManager) : APIBaseController
+    public class ImageSlidersController(IServiceManager serviceManager, IHubContext<MessageHub> hubContext) : APIBaseController
     {
         [HttpGet]
         public async Task<ActionResult<List<ImageSliderDto>>> GetAll()
@@ -16,10 +18,30 @@ namespace Academy.Web.Controllers.AcademyControllers
         public async Task<ActionResult<ImageSliderDto>> GetById(int id)
             => Ok(await serviceManager.ImageSliderService.GetByIdAsync(id));
 
+        //[HttpPost]
+        //[Consumes("multipart/form-data")]
+        //public async Task<ActionResult<ImageSliderDto>> Add([FromForm] CreateImageSliderDto dto)
+        //=> Ok(await serviceManager.ImageSliderService.AddAsync(dto));
+
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<ImageSliderDto>> Add([FromForm] CreateImageSliderDto dto)
-        => Ok(await serviceManager.ImageSliderService.AddAsync(dto));
+        {
+            var result = await serviceManager.ImageSliderService.AddAsync(dto);
+
+            // ✅ إضافة آمنة: لو الإيميل اتبعت، ابعت Welcome Message للـ Group بتاع الإيميل
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                var emailKey = dto.Email.Trim().ToLowerInvariant();
+
+                await hubContext.Clients.Group(emailKey).SendAsync(
+                    "WelcomeMessage",
+                    "أهلاً بيك 👋 تم تسجيل بريدك بنجاح في أكاديمية كوديكو . هنبلغك بكل جديد قريبًا!"
+                );
+            }
+
+            return Ok(result);
+        }
 
 
         [HttpPut("{id:int}")]

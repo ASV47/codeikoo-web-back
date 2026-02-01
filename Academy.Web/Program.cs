@@ -10,6 +10,7 @@ using Academy.Interfaces.IServices;
 using Academy.Interfaces.IServices.IAcademyServices;
 using Academy.Web.CustomMiddlewares;
 using Academy.Web.ErrorsModel;
+using Academy.Web.Hubs;
 using CoreLayer.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -101,6 +102,7 @@ namespace Academy.Web
             builder.Services.AddScoped<ILocalizationService, LocalizationService>();
             //builder.Services.AddScoped<IdentityDataSeeder>();
 
+            builder.Services.AddSignalR();
 
             builder.Services.AddIdentityCore<ApplicationUser>(options =>
             {
@@ -208,6 +210,9 @@ namespace Academy.Web
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<MessageHub>("/hubs/message");
+
             app.Run();
         }
     }

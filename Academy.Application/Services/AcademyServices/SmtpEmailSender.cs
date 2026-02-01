@@ -46,7 +46,7 @@ namespace Academy.Application.Services.AcademyServices
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to send email to {ToEmail}", toEmail);
-                throw; // أو ارمي Exception من نوعك
+                throw; 
             }
         }
     }

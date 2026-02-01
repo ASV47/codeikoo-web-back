@@ -144,7 +144,7 @@ namespace Academy.Infrastructure.Data
 		public DbSet<JobApplication> JobApplications { get; set; }
 		public DbSet<ImageSlider> ImageSliders { get; set; }
         public DbSet<InstructorApplication> InstructorApplications { get; set; }
-
+		public DbSet<StudentCourseComment> StudentCourseComments { get; set; }	
 
 		#region Company
 		public DbSet<CompanyCourse> CompanyCourses { get; set; }
