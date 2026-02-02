@@ -81,17 +81,45 @@ namespace Academy.Application.Services.AcademyServices
             return ToDto(entity);
         }
 
-        public async Task<IEnumerable<CourseDto>> GetAllAsync()
+        //public async Task<IEnumerable<CourseDto>> GetAllAsync()
+        //{
+        //    var entities = await unitOfWork.GetRepository<Course, int>()
+        //        .Query()
+        //        .AsNoTracking()
+        //        .Where(c => !c.IsDeleted)
+        //        .OrderByDescending(c => c.Id)
+        //        .ToListAsync();
+
+        //    return entities.Select(ToDto).ToList();
+        //}
+
+
+        public async Task<IEnumerable<CourseDto>> GetAllAsync(string? search = null)
         {
-            var entities = await unitOfWork.GetRepository<Course, int>()
+            var query = unitOfWork.GetRepository<Course, int>()
                 .Query()
                 .AsNoTracking()
-                .Where(c => !c.IsDeleted)
+                .Where(c => !c.IsDeleted);
+
+            search = (search ?? string.Empty).Trim();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(c =>
+                    c.TilteArabic.ToLower().Contains(search.ToLower()) ||
+                    c.TitleEnglish.ToLower().Contains(search.ToLower()) ||
+                    (c.DescriptionAr != null && c.DescriptionAr.Contains(search)) ||
+                    (c.DescriptionEn != null && c.DescriptionEn.Contains(search))
+                );
+            }
+
+            var entities = await query
                 .OrderByDescending(c => c.Id)
                 .ToListAsync();
 
             return entities.Select(ToDto).ToList();
         }
+
 
         public async Task<CourseDto> GetByIdAsync(int id)
         {
@@ -105,29 +133,7 @@ namespace Academy.Application.Services.AcademyServices
             return ToDto(entity);
         }
 
-        public async Task<IEnumerable<CourseDto>> SearchAsync(string search)
-        {
-            search = (search ?? string.Empty).Trim();
-            if (string.IsNullOrWhiteSpace(search))
-                return new List<CourseDto>();
-
-            var entities = await unitOfWork.GetRepository<Course, int>()
-                .Query()
-                .AsNoTracking()
-                .Where(c => !c.IsDeleted &&
-                    (
-                        c.TilteArabic.Contains(search) ||
-                        c.TitleEnglish.Contains(search) ||
-                        (c.DescriptionAr != null && c.DescriptionAr.Contains(search)) ||
-                        (c.DescriptionEn != null && c.DescriptionEn.Contains(search))
-                    ))
-                .OrderByDescending(c => c.Id)
-                .Take(50)
-                .ToListAsync();
-
-            return entities.Select(ToDto).ToList();
-        }
-
+       
         public async Task DeleteAsync(int id)
         {
             var repo = unitOfWork.GetRepository<Course, int>();

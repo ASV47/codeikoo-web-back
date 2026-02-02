@@ -13,20 +13,26 @@ namespace Academy.Web.Controllers
 	public class CoursesController(IServiceManager serviceManager) : APIBaseController
 	{
 
-		[Authorize]
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll()
-	  => Ok(await serviceManager.CourseService.GetAllAsync());
+        //[Authorize]
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll()
+        // => Ok(await serviceManager.CourseService.GetAllAsync());
 
-		[Authorize]
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll([FromQuery] string? CourseName)
+	    => Ok(await serviceManager.CourseService.GetAllAsync(CourseName));
+
+
+        [Authorize]
 		[HttpGet("{id:int}")]
 		public async Task<ActionResult<CourseDto>> GetById(int id)
 			=> Ok(await serviceManager.CourseService.GetByIdAsync(id));
 
-		[Authorize]
-		[HttpGet("search")]
-		public async Task<ActionResult<IEnumerable<CourseDto>>> Search([FromQuery] string q)
-			=> Ok(await serviceManager.CourseService.SearchAsync(q));
+		//[Authorize]
+		//[HttpGet("search")]
+		//public async Task<ActionResult<IEnumerable<CourseDto>>> Search([FromQuery] string q)
+		//	=> Ok(await serviceManager.CourseService.SearchAsync(q));
        
 		
 		[Authorize]
