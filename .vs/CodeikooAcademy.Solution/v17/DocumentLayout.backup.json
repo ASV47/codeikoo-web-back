@@ -1,0 +1,113 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F3F3FA57-4C85-43AA-A408-1D98F7352C44}|Academy.Application\\Academy.Application.csproj|d:\\codeikooprojectscopy\\codeikoocompanyandacademy\\codeikoo-serverside\\academy.application\\services\\academyservices\\courseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F3F3FA57-4C85-43AA-A408-1D98F7352C44}|Academy.Application\\Academy.Application.csproj|solutionrelative:academy.application\\services\\academyservices\\courseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{41F81F8F-3605-4A4F-B8E9-71C6C0D9D98A}|Academy.Web\\Academy.Web.csproj|d:\\codeikooprojectscopy\\codeikoocompanyandacademy\\codeikoo-serverside\\academy.web\\controllers\\academycontrollers\\coursescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{41F81F8F-3605-4A4F-B8E9-71C6C0D9D98A}|Academy.Web\\Academy.Web.csproj|solutionrelative:academy.web\\controllers\\academycontrollers\\coursescontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|d:\\codeikooprojectscopy\\codeikoocompanyandacademy\\codeikoo-serverside\\academy.interfaces\\iservices\\iacademyservices\\icourseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|solutionrelative:academy.interfaces\\iservices\\iacademyservices\\icourseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|d:\\codeikooprojectscopy\\codeikoocompanyandacademy\\codeikoo-serverside\\academy.interfaces\\dtos\\academydtos\\createcoursedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|solutionrelative:academy.interfaces\\dtos\\academydtos\\createcoursedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|d:\\codeikooprojectscopy\\codeikoocompanyandacademy\\codeikoo-serverside\\academy.interfaces\\dtos\\academydtos\\coursedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{81EFC7C5-C07E-4900-9F54-3F32DD6DF667}|Academy.Interfaces\\Academy.Interfaces.csproj|solutionrelative:academy.interfaces\\dtos\\academydtos\\coursedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CoursesController.cs",
+              "DocumentMoniker": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Web\\Controllers\\AcademyControllers\\CoursesController.cs",
+              "RelativeDocumentMoniker": "Academy.Web\\Controllers\\AcademyControllers\\CoursesController.cs",
+              "ToolTip": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Web\\Controllers\\AcademyControllers\\CoursesController.cs*",
+              "RelativeToolTip": "Academy.Web\\Controllers\\AcademyControllers\\CoursesController.cs*",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwBoAAAATAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T11:37:48.181Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CourseService.cs",
+              "DocumentMoniker": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Application\\Services\\AcademyServices\\CourseService.cs",
+              "RelativeDocumentMoniker": "Academy.Application\\Services\\AcademyServices\\CourseService.cs",
+              "ToolTip": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Application\\Services\\AcademyServices\\CourseService.cs*",
+              "RelativeToolTip": "Academy.Application\\Services\\AcademyServices\\CourseService.cs*",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAQwGoAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T11:37:24.752Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ICourseService.cs",
+              "DocumentMoniker": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\IServices\\IAcademyServices\\ICourseService.cs",
+              "RelativeDocumentMoniker": "Academy.Interfaces\\IServices\\IAcademyServices\\ICourseService.cs",
+              "ToolTip": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\IServices\\IAcademyServices\\ICourseService.cs*",
+              "RelativeToolTip": "Academy.Interfaces\\IServices\\IAcademyServices\\ICourseService.cs*",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAwAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T11:37:03.322Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CreateCourseDto.cs",
+              "DocumentMoniker": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\DTOs\\AcademyDTOs\\CreateCourseDto.cs",
+              "RelativeDocumentMoniker": "Academy.Interfaces\\DTOs\\AcademyDTOs\\CreateCourseDto.cs",
+              "ToolTip": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\DTOs\\AcademyDTOs\\CreateCourseDto.cs",
+              "RelativeToolTip": "Academy.Interfaces\\DTOs\\AcademyDTOs\\CreateCourseDto.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T11:36:47.06Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "CourseDto.cs",
+              "DocumentMoniker": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\DTOs\\AcademyDTOs\\CourseDto.cs",
+              "RelativeDocumentMoniker": "Academy.Interfaces\\DTOs\\AcademyDTOs\\CourseDto.cs",
+              "ToolTip": "D:\\CodeikooProjectsCopy\\CodeikooCompanyAndAcademy\\Codeikoo-ServerSide\\Academy.Interfaces\\DTOs\\AcademyDTOs\\CourseDto.cs",
+              "RelativeToolTip": "Academy.Interfaces\\DTOs\\AcademyDTOs\\CourseDto.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAgAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-02T11:36:32.04Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
