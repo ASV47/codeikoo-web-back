@@ -1,5 +1,6 @@
 ﻿using AbstractionLayer;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Academy.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using SharedLayer.DTO;
@@ -16,11 +17,11 @@ namespace PresentationLayer.Controllers
 	[ApiController]
 	public class CompanyCourseController(IServiceManager _serviceManager) : ControllerBase
 	{
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CompanyCourseDTO>>> GetAllCourses()
-		=> Ok(await _serviceManager.CompanyCourseService.GetAllCoursesAsync());
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<CompanyCourseDTO>>> GetAllCourses([FromQuery] PaginationParams pagination)
+	    => Ok(await _serviceManager.CompanyCourseService.GetAllCoursesAsync(pagination));
 
-		[HttpGet("{id}")]
+        [HttpGet("{id}")]
 		public async Task<ActionResult<CompanyCourseDTO>> GetById(int id)
 		{
 			var course = await _serviceManager.CompanyCourseService.GetCourseById(id);

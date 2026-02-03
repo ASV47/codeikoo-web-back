@@ -1,4 +1,5 @@
-﻿using SharedLayer.DTO;
+﻿using Academy.Interfaces.Pagination;
+using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,8 @@ namespace AbstractionLayer
 {
 	public interface ICompanyCourseService
 	{
-		Task<IEnumerable<CompanyCourseDTO>> GetAllCoursesAsync();
-		Task<CompanyCourseDTO> GetCourseById(int id);
+        Task<PagedResult<CompanyCourseDTO>> GetAllCoursesAsync(PaginationParams pagination);
+        Task<CompanyCourseDTO> GetCourseById(int id);
 		Task<CompanyCourseDTO> CreateCourseAsync(CreateCompanyCourseDTO dto);
 		Task<CompanyCourseDTO> UpdateCourseAsync(int id, CreateCompanyCourseDTO dto);
 		Task DeleteCourseAsync(int id);

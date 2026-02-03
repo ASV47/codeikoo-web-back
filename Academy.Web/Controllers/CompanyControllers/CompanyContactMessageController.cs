@@ -1,5 +1,6 @@
 ﻿using AbstractionLayer;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Academy.Web.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using SharedLayer.DTO;
@@ -27,14 +28,15 @@ namespace PresentationLayer.Controllers
 			return Ok(new { Message = "Application submitted successfully" });
 		}
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<CompanyContactMessageDTO>>> GetAll()
-		{
-			var result = await _serviceManager.CompanyContactMessageService.GetAllAsync();
-			return Ok(result);
-		}
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<CompanyContactMessageDTO>>> GetAll([FromQuery] PaginationParams pagination)
+        {
+            var result = await _serviceManager.CompanyContactMessageService.GetAllAsync(pagination);
+            return Ok(result);
+        }
 
-		[HttpGet("{id}")]
+
+        [HttpGet("{id}")]
 		public async Task<ActionResult<CompanyContactMessageDTO>> GetById(int id)
 		{
 			var result = await _serviceManager.CompanyContactMessageService.GetByIdAsync(id);

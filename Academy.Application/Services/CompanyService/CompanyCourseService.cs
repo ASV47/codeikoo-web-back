@@ -1,7 +1,9 @@
 ﻿using AbstractionLayer;
+using Academy.Interfaces.Interfaces;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using CoreLayer.Entities;
-using Academy.Interfaces.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
@@ -45,15 +47,42 @@ namespace ServiceLayer
 			await _unitOfWork.SaveChangesAsync();
 		}
 
-		public async Task<IEnumerable<CompanyCourseDTO>> GetAllCoursesAsync()
-		{
-			var Repo = _unitOfWork.GetRepository<CompanyCourse, int>();
-			var Courses = await Repo.GetAllAsync();
-			var MappedCourses = _mapper.Map<IEnumerable<CompanyCourse>, IEnumerable<CompanyCourseDTO>>(Courses);
-			return MappedCourses;
-		}
+        public async Task<PagedResult<CompanyCourseDTO>> GetAllCoursesAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
 
-		public async Task<CompanyCourseDTO> GetCourseById(int id)
+            var query = _unitOfWork.GetRepository<CompanyCourse, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)      // لو CompanyCourse فيه SoftDelete
+                .OrderByDescending(x => x.Id); // ثابت قبل Skip/Take
+
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var entities = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var items = _mapper.Map<List<CompanyCourseDTO>>(entities);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<CompanyCourseDTO>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
+        }
+
+        public async Task<CompanyCourseDTO> GetCourseById(int id)
 		{
 			var Course = await _unitOfWork.GetRepository<CompanyCourse, int>().GetByIdAsync(id);
 			var MappedCourse = _mapper.Map<CompanyCourse, CompanyCourseDTO>(Course);

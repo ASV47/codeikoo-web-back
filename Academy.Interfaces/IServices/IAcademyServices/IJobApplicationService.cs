@@ -1,4 +1,5 @@
 ﻿using Academy.Interfaces.DTOs;
+using Academy.Interfaces.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace Academy.Interfaces.IServices
 	{
 		Task<JobApplicationDto> AddAsync(CreateJobApplicationDto dto);
 		Task<bool> DeleteAsync(int id);
-		Task<IEnumerable<JobApplicationDto>> GetAllAsync();
-		Task<JobApplicationDto?> GetByIdAsync(int id);
+        Task<PagedResult<JobApplicationDto>> GetAllAsync(PaginationParams pagination);
+        Task<JobApplicationDto?> GetByIdAsync(int id);
 		Task<bool> RestoreAsync(int id);
 
 	}

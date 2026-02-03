@@ -1,4 +1,5 @@
-﻿using SharedLayer.DTO;
+﻿using Academy.Interfaces.Pagination;
+using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,9 @@ namespace AbstractionLayer
 	public interface ICompanyJobApplicationService
 	{
 		Task SubmitApplicationAsync(CreateCompanyJopApplicationDTO dto);
-		Task<IEnumerable<CompanyJopApplicationDTO>> GetAllAsync(); // مضافة
-		Task<CompanyJopApplicationDTO?> GetByIdAsync(int id);      // مضافة
+        Task<PagedResult<CompanyJopApplicationDTO>> GetAllAsync(PaginationParams pagination);
+        // مضافة
+        Task<CompanyJopApplicationDTO?> GetByIdAsync(int id);      // مضافة
 		Task<bool> DeleteAsync(int id);                     // مضافة
 	}
 }

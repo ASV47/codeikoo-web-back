@@ -1,5 +1,6 @@
 ﻿using Academy.Interfaces.DTOs;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,14 +23,15 @@ namespace Academy.Web.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<ContactMessageDto>>> GetAll()
-		{
-			var Messages = await _serviceManager.ContactMessageService.GetAllAsync();
-			return Ok(Messages);
-		}
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<ContactMessageDto>>> GetAll([FromQuery] PaginationParams pagination)
+        {
+            var messages = await _serviceManager.ContactMessageService.GetAllAsync(pagination);
+            return Ok(messages);
+        }
 
-		[HttpGet("{id}")]
+
+        [HttpGet("{id}")]
 		public async Task<ActionResult<ContactMessageDto?>> GetById(int id)
 		=> Ok(await _serviceManager.ContactMessageService.GetByIdAsync(id));
 
