@@ -4,6 +4,7 @@ using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -51,18 +52,42 @@ namespace Academy.Application.Services.AcademyServices
 			return true;
 		}
 
-		public async Task<IEnumerable<ContactMessageDto>> GetAllAsync()
-		{
-			var repo = _unitOfWork.GetRepository<ContactMessage, int>();
+        public async Task<PagedResult<ContactMessageDto>> GetAllAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
 
-			var entities = await repo.Query()
-				.Where(x => !x.IsDeleted)
-				.ToListAsync();
+            var repo = _unitOfWork.GetRepository<ContactMessage, int>();
 
-			return _mapper.Map<IEnumerable<ContactMessageDto>>(entities);
-		}
+            var query = repo.Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .OrderByDescending(x => x.Id); // ثابت قبل Skip/Take
 
-		public async Task<ContactMessageDto?> GetByIdAsync(int id)
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var entities = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var items = _mapper.Map<List<ContactMessageDto>>(entities);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<ContactMessageDto>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
+        }
+        public async Task<ContactMessageDto?> GetByIdAsync(int id)
 		{
 			var repo = _unitOfWork.GetRepository<ContactMessage, int>();
 

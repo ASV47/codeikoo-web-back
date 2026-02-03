@@ -2,6 +2,7 @@
 using Academy.Application.Services.AcademyServices;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,28 +13,18 @@ namespace Academy.Web.Controllers
 	[ApiExplorerSettings(GroupName = "Academy")]
 	public class CoursesController(IServiceManager serviceManager) : APIBaseController
 	{
-
-        //[Authorize]
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll()
-        // => Ok(await serviceManager.CourseService.GetAllAsync());
-
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAll([FromQuery] string? CourseName)
-	    => Ok(await serviceManager.CourseService.GetAllAsync(CourseName));
+        public async Task<ActionResult<PagedResult<CourseDto>>> GetAll(
+			[FromQuery] string? CourseName,
+			[FromQuery] PaginationParams pagination)
+			=> Ok(await serviceManager.CourseService.GetAllAsync(pagination, CourseName));
 
 
         [Authorize]
 		[HttpGet("{id:int}")]
 		public async Task<ActionResult<CourseDto>> GetById(int id)
 			=> Ok(await serviceManager.CourseService.GetByIdAsync(id));
-
-		//[Authorize]
-		//[HttpGet("search")]
-		//public async Task<ActionResult<IEnumerable<CourseDto>>> Search([FromQuery] string q)
-		//	=> Ok(await serviceManager.CourseService.SearchAsync(q));
-       
 		
 		[Authorize]
         [HttpPost]

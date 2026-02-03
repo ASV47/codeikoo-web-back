@@ -1,9 +1,11 @@
-﻿using Academy.Infrastructure.Entities.AcademyEntities;
+﻿using Academy.Application.Repositories;
+using Academy.Infrastructure.Entities.AcademyEntities;
 using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
 using Academy.Interfaces.IServices.IAcademyServices;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -56,19 +58,44 @@ namespace Academy.Application.Services.AcademyServices
         }
 
 
-        public async Task<IEnumerable<InstructorApplicationDto>> GetAllAsync()
-		{
-			var entities = await _unitOfWork.GetRepository<InstructorApplication, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(x => !x.IsDeleted)       // ✅ SoftDelete filter
-				.OrderByDescending(x => x.Id)
-				.ToListAsync();
 
-			return _mapper.Map<IEnumerable<InstructorApplicationDto>>(entities);
-		}
+        public async Task<PagedResult<InstructorApplicationDto>> GetAllAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
 
-		public async Task<InstructorApplicationDto?> GetByIdAsync(int id)
+            var query = _unitOfWork.GetRepository<InstructorApplication, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .OrderByDescending(x => x.Id); // ثابت قبل Skip/Take
+
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var entities = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var items = _mapper.Map<List<InstructorApplicationDto>>(entities);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<InstructorApplicationDto>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
+        }
+
+
+    public async Task<InstructorApplicationDto?> GetByIdAsync(int id)
 		{
 			var entity = await _unitOfWork.GetRepository<InstructorApplication, int>()
 				.Query()

@@ -17,7 +17,12 @@ namespace Academy.Web.Controllers
 		public async Task<ActionResult<CourseUnitDto>> GetById(int id)
 			=> Ok(await serviceManager.CourseUnitService.GetByIdAsync(id));
 
-		[HttpPost]
+        [HttpPut("update/{id:int}")]
+        public async Task<ActionResult<CourseUnitDto>> Update(int id, [FromBody] CreateCourseUnitDto dto)
+		=> Ok(await serviceManager.CourseUnitService.UpdateAsync(id, dto));
+
+
+        [HttpPost]
 		public async Task<ActionResult<CourseUnitDto>> Add([FromBody] CreateCourseUnitDto dto)
 			=> Ok(await serviceManager.CourseUnitService.AddAsync(dto));
 

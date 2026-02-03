@@ -45,6 +45,38 @@ namespace Academy.Application.Services.AcademyServices
             return ToDto(entity);
         }
 
+        public async Task<CourseUnitDto> UpdateAsync(int id, CreateCourseUnitDto dto)
+        {
+            var repo = unitOfWork.GetRepository<CourseUnit, int>();
+            var entity = await repo.GetByIdAsync(id);
+
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Course unit not found.");
+
+            // ✅ لو المستخدم غير CourseId، نتأكد إن الكورس موجود
+            if (entity.CourseId != dto.CourseId)
+            {
+                var courseExists = await unitOfWork.GetRepository<Course, int>()
+                    .Query()
+                    .AsNoTracking()
+                    .AnyAsync(c => c.Id == dto.CourseId && !c.IsDeleted);
+
+                if (!courseExists)
+                    throw new ArgumentException("Course not found.");
+            }
+
+            // ✅ تحديث البيانات (TitleArabic/TitleEnglish/CourseId ... حسب الـ mapping عندك)
+            mapper.Map(dto, entity);
+
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+            repo.Update(entity);
+            await unitOfWork.SaveChangesAsync();
+
+            return ToDto(entity);
+        }
+
+
         public async Task<List<CourseUnitDto>> GetAllAsync(int? courseId = null)
         {
             var query = unitOfWork.GetRepository<CourseUnit, int>()

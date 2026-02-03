@@ -1,5 +1,6 @@
 ﻿using Academy.Interfaces.DTOs;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,11 +22,17 @@ namespace Academy.Web.Controllers
 			return Ok(Job);
 		}
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<JobDto>>> GetAll()
-		=> Ok(await _serviceManager.JobService.GetAllAsync());
+        [HttpPut("update/{id:int}")]
+        public async Task<ActionResult<JobDto>> Update(int id, [FromBody] CreateJobDto dto)
+		=> Ok(await _serviceManager.JobService.UpdateAsync(id, dto));
 
-		[HttpGet("{id}")]
+
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<JobDto>>> GetAll([FromQuery] PaginationParams pagination)
+	    => Ok(await _serviceManager.JobService.GetAllAsync(pagination));
+
+
+        [HttpGet("{id}")]
 		public async Task<ActionResult<JobDto?>> GetById(int id)
 		=> Ok(await _serviceManager.JobService.GetByIdAsync(id));
 

@@ -1,5 +1,6 @@
 ﻿using Academy.Interfaces.DTOs;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,13 +11,6 @@ namespace Academy.Web.Controllers
 	[ApiExplorerSettings(GroupName = "Academy")]
 	public class JobApplicationsController(IServiceManager _serviceManager) : APIBaseController
 	{
-
-        //[HttpPost]
-        //public async Task<ActionResult<JobApplicationDto>> Add([FromForm] CreateJobApplicationDto dto)
-        //{
-        //	var result = await _serviceManager.JobApplicationService.AddAsync(dto);
-        //	return Ok(result);
-        //}
 
         [HttpPost]
         [Consumes("multipart/form-data")]
@@ -35,16 +29,19 @@ namespace Academy.Web.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet]
-		public async Task<ActionResult<IEnumerable<JobApplicationDto>>> GetAll()
-		{
-			var JobApp = await _serviceManager.JobApplicationService.GetAllAsync();
-			return Ok(JobApp);
-		}
 
-		[HttpGet("{id}")]
+        [HttpGet]
+        public async Task<ActionResult<PagedResult<JobApplicationDto>>> GetAll([FromQuery] PaginationParams pagination)
+        {
+            var jobApps = await _serviceManager.JobApplicationService.GetAllAsync(pagination);
+            return Ok(jobApps);
+        }
+
+
+        [HttpGet("{id}")]
 		public async Task<ActionResult<JobApplicationDto?>> GetById(int id)
 			=> Ok(await _serviceManager.JobApplicationService.GetByIdAsync(id));
+
 
 		[HttpPut("{id}/restore")]
 		public async Task<ActionResult<bool>> Restore(int id)

@@ -1,7 +1,9 @@
 ﻿using AbstractionLayer;
+using Academy.Interfaces.Interfaces;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using CoreLayer.Entities;
-using Academy.Interfaces.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SharedLayer.DTO;
 using System;
 using System.Collections.Generic;
@@ -24,16 +26,44 @@ namespace ServiceLayer
 			await unitOfWork.SaveChangesAsync();
 		}
 
-		// 1. جلب كل الرسائل (للوحة التحكم)
-		public async Task<IEnumerable<CompanyContactMessageDTO>> GetAllAsync()
-		{
-			var repo = unitOfWork.GetRepository<CompanyContactMessage, int>();
-			var messages = await repo.GetAllAsync();
-			return mapper.Map<IEnumerable<CompanyContactMessageDTO>>(messages);
-		}
+        // 1. جلب كل الرسائل (للوحة التحكم)
+        public async Task<PagedResult<CompanyContactMessageDTO>> GetAllAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
 
-		// 2. جلب رسالة محددة بالتفصيل
-		public async Task<CompanyContactMessageDTO?> GetByIdAsync(int id)
+            var query = unitOfWork.GetRepository<CompanyContactMessage, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)          // لو CompanyContactMessage فيه IsDeleted (زي باقي جداولك)
+                .OrderByDescending(x => x.Id);     // ثابت قبل Skip/Take
+
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var entities = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var items = mapper.Map<List<CompanyContactMessageDTO>>(entities);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<CompanyContactMessageDTO>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
+        }
+
+        // 2. جلب رسالة محددة بالتفصيل
+        public async Task<CompanyContactMessageDTO?> GetByIdAsync(int id)
 		{
 			var repo = unitOfWork.GetRepository<CompanyContactMessage, int>();
 			var message = await repo.GetByIdAsync(id);

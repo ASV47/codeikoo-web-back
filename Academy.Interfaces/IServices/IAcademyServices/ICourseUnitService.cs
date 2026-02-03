@@ -12,6 +12,7 @@ namespace Academy.Interfaces.IServices
         Task<CourseUnitDto> AddAsync(CreateCourseUnitDto dto);
         Task<List<CourseUnitDto>> GetAllAsync(int? courseId = null);
         Task<CourseUnitDto> GetByIdAsync(int id);
+        Task<CourseUnitDto> UpdateAsync(int id, CreateCourseUnitDto dto);
         Task DeleteAsync(int id);
         Task RestoreAsync(int id);
     }

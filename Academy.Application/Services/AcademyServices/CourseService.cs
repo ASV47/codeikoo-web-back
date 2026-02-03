@@ -4,6 +4,7 @@ using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
 using Academy.Interfaces.IServices.IAcademyServices;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -81,20 +82,33 @@ namespace Academy.Application.Services.AcademyServices
             return ToDto(entity);
         }
 
-        //public async Task<IEnumerable<CourseDto>> GetAllAsync()
+        //public async Task<IEnumerable<CourseDto>> GetAllAsync(string? search = null)
         //{
-        //    var entities = await unitOfWork.GetRepository<Course, int>()
+        //    var query = unitOfWork.GetRepository<Course, int>()
         //        .Query()
         //        .AsNoTracking()
-        //        .Where(c => !c.IsDeleted)
+        //        .Where(c => !c.IsDeleted);
+
+        //    search = (search ?? string.Empty).Trim();
+
+        //    if (!string.IsNullOrWhiteSpace(search))
+        //    {
+        //        query = query.Where(c =>
+        //            c.TilteArabic.ToLower().Contains(search.ToLower()) ||
+        //            c.TitleEnglish.ToLower().Contains(search.ToLower()) ||
+        //            (c.DescriptionAr != null && c.DescriptionAr.Contains(search)) ||
+        //            (c.DescriptionEn != null && c.DescriptionEn.Contains(search))
+        //        );
+        //    }
+
+        //    var entities = await query
         //        .OrderByDescending(c => c.Id)
         //        .ToListAsync();
 
         //    return entities.Select(ToDto).ToList();
         //}
 
-
-        public async Task<IEnumerable<CourseDto>> GetAllAsync(string? search = null)
+        public async Task<PagedResult<CourseDto>> GetAllAsync(PaginationParams pagination, string? search = null)
         {
             var query = unitOfWork.GetRepository<Course, int>()
                 .Query()
@@ -105,21 +119,22 @@ namespace Academy.Application.Services.AcademyServices
 
             if (!string.IsNullOrWhiteSpace(search))
             {
+                var s = search.ToLower();
+
                 query = query.Where(c =>
-                    c.TilteArabic.ToLower().Contains(search.ToLower()) ||
-                    c.TitleEnglish.ToLower().Contains(search.ToLower()) ||
+                    c.TilteArabic.ToLower().Contains(s) ||
+                    c.TitleEnglish.ToLower().Contains(s) ||
                     (c.DescriptionAr != null && c.DescriptionAr.Contains(search)) ||
                     (c.DescriptionEn != null && c.DescriptionEn.Contains(search))
                 );
             }
 
-            var entities = await query
-                .OrderByDescending(c => c.Id)
-                .ToListAsync();
+            // مهم: لازم OrderBy قبل Skip/Take علشان النتائج تبقى ثابتة
+            query = query.OrderByDescending(c => c.Id);
 
-            return entities.Select(ToDto).ToList();
+            // ✅ Pagination + Mapping للـ DTO
+            return await query.ToPagedResultAsync(pagination, ToDto);
         }
-
 
         public async Task<CourseDto> GetByIdAsync(int id)
         {

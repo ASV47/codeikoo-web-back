@@ -1,4 +1,5 @@
 ﻿using Academy.Interfaces.DTOs;
+using Academy.Interfaces.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace Academy.Interfaces.IServices
 	{
 		Task<InstructorApplicationDto> AddAsync(CreateInstructorApplicationDto dto);
 		Task<bool> DeleteAsync(int id);
-		Task<IEnumerable<InstructorApplicationDto>> GetAllAsync();
-		Task<InstructorApplicationDto?> GetByIdAsync(int id);
+        Task<PagedResult<InstructorApplicationDto>> GetAllAsync(PaginationParams pagination);
+        Task<InstructorApplicationDto?> GetByIdAsync(int id);
 		Task<bool> RestoreAsync(int id);
 
 	}

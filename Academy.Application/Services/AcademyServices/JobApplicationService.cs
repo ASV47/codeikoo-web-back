@@ -4,6 +4,7 @@ using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
 using Academy.Interfaces.IServices.IAcademyServices;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -61,19 +62,42 @@ namespace Academy.Application.Services.AcademyServices
         }
 
 
-        public async Task<IEnumerable<JobApplicationDto>> GetAllAsync()
-		{
-			var entities = await _unitOfWork.GetRepository<JobApplication, int>()
-				.Query()
-				.AsNoTracking()
-				.Where(x => !x.IsDeleted)         // ✅ SoftDelete filter
-				.OrderByDescending(x => x.Id)
-				.ToListAsync();
+        public async Task<PagedResult<JobApplicationDto>> GetAllAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
 
-			return _mapper.Map<IEnumerable<JobApplicationDto>>(entities);
-		}
+            var query = _unitOfWork.GetRepository<JobApplication, int>()
+                .Query()
+                .AsNoTracking()
+                .Where(x => !x.IsDeleted)
+                .OrderByDescending(x => x.Id); // ثابت قبل Skip/Take
 
-		public async Task<JobApplicationDto?> GetByIdAsync(int id)
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var entities = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            var items = _mapper.Map<List<JobApplicationDto>>(entities);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<JobApplicationDto>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
+        }
+
+        public async Task<JobApplicationDto?> GetByIdAsync(int id)
 		{
 			var entity = await _unitOfWork.GetRepository<JobApplication, int>()
 				.Query()

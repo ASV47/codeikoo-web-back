@@ -4,6 +4,7 @@ using Academy.Infrastructure.StaticData;
 using Academy.Interfaces.DTOs;
 using Academy.Interfaces.Interfaces;
 using Academy.Interfaces.IServices;
+using Academy.Interfaces.Pagination;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -40,16 +41,63 @@ namespace Academy.Application.Services.AcademyServices
             return ToDto(entity);
         }
 
-        public async Task<IEnumerable<JobDto>> GetAllAsync()
+        public async Task<JobDto> UpdateAsync(int id, CreateJobDto dto)
         {
-            var jobs = await _unitOfWork.GetRepository<Job, int>()
+            var repo = _unitOfWork.GetRepository<Job, int>();
+            var entity = await repo.GetByIdAsync(id);
+
+            if (entity is null || entity.IsDeleted)
+                throw new ArgumentException("Job not found.");
+
+            // Update fields via AutoMapper
+            _mapper.Map(dto, entity);
+
+            // لو PostedAt nullable في CreateJobDto وعايز تحافظ على القديم لو null:
+            if (dto.PostedAt.HasValue)
+                entity.PostedAt = dto.PostedAt.Value;
+
+            AuditHelper.SetModified(entity, AuditDefaults.AdminId);
+
+            repo.Update(entity);
+            await _unitOfWork.SaveChangesAsync();
+
+            return ToDto(entity); // نفس اللي عندك في GetAll
+        }
+
+
+        public async Task<PagedResult<JobDto>> GetAllAsync(PaginationParams pagination)
+        {
+            if (pagination.PageNumber < 1) pagination.PageNumber = 1;
+
+            var query = _unitOfWork.GetRepository<Job, int>()
                 .Query()
                 .AsNoTracking()
                 .Where(x => !x.IsDeleted)
-                .OrderByDescending(x => x.Id)
+                .OrderByDescending(x => x.Id); // ثابت قبل Skip/Take
+
+            var totalCount = await query.CountAsync();
+
+            var skip = (pagination.PageNumber - 1) * pagination.PageSize;
+
+            var jobs = await query
+                .Skip(skip)
+                .Take(pagination.PageSize)
                 .ToListAsync();
 
-            return jobs.Select(ToDto).ToList();
+            var items = jobs.Select(ToDto).ToList();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pagination.PageSize);
+
+            return new PagedResult<JobDto>
+            {
+                Items = items,
+                PageNumber = pagination.PageNumber,
+                PageSize = pagination.PageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                HasPreviousPage = pagination.PageNumber > 1,
+                HasNextPage = pagination.PageNumber < totalPages
+            };
         }
 
         public async Task<JobDto?> GetByIdAsync(int id)

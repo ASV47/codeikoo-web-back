@@ -1,4 +1,5 @@
 ﻿using Academy.Interfaces.DTOs;
+using Academy.Interfaces.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +12,8 @@ namespace Academy.Interfaces.IServices
 	{
 		Task<ContactMessageDto> AddAsync(CreateContactMessageDto dto);
 		Task<bool> DeleteAsync(int id);
-		Task<IEnumerable<ContactMessageDto>> GetAllAsync();
-		Task<ContactMessageDto?> GetByIdAsync(int id);
+        Task<PagedResult<ContactMessageDto>> GetAllAsync(PaginationParams pagination);
+        Task<ContactMessageDto?> GetByIdAsync(int id);
 		Task<bool> RestoreAsync(int id);
 
 	}
