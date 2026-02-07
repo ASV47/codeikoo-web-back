@@ -29,39 +29,44 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Find Web csproj + Publish
+      - name: Find WEB csproj + Publish (hard fail if not Web)
         shell: bash
         run: |
           set -e
 
-          echo "All csproj files:"
+          echo "== Listing csproj =="
           find . -maxdepth 12 -name "*.csproj" -print
 
-          # اختار مشروع Web فقط
-          PROJECT_PATH="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | head -n 1)"
+          # ✅ لازم يكون Microsoft.NET.Sdk.Web
+          WEB_CSPROJ="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | head -n 1)"
 
-          # لو عندك أكثر من Web project وعايز Academy.Web تحديدًا:
-          if [ -n "$PROJECT_PATH" ]; then
-            PREF="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | grep -i "Academy.Web" | head -n 1 || true)"
-            if [ -n "$PREF" ]; then PROJECT_PATH="$PREF"; fi
-          fi
+          # لو عندك أكتر من Web project، فضّل Academy.Web لو موجود
+          PREF="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | grep -i "Academy.Web" | head -n 1 || true)"
+          if [ -n "$PREF" ]; then WEB_CSPROJ="$PREF"; fi
 
-          if [ -z "$PROJECT_PATH" ]; then
+          if [ -z "$WEB_CSPROJ" ]; then
             echo "❌ No Web csproj found (Microsoft.NET.Sdk.Web)."
             exit 1
           fi
 
-          echo "✅ Using PROJECT_PATH=$PROJECT_PATH"
+          echo "✅ Using WEB_CSPROJ=$WEB_CSPROJ"
 
-          dotnet restore "$PROJECT_PATH"
-          dotnet publish "$PROJECT_PATH" -c Release -o publish
+          dotnet restore "$WEB_CSPROJ"
+          dotnet publish "$WEB_CSPROJ" -c Release -o publish
 
-          APP_NAME="$(basename "$PROJECT_PATH" .csproj)"
+          APP_NAME="$(basename "$WEB_CSPROJ" .csproj)"
           echo "web: dotnet ${APP_NAME}.dll" > publish/Procfile
+
+          echo "== Publish output =="
+          ls -la publish | head -n 200
+
+          # ✅ تأكيد إن الـ DLL موجود
+          test -f "publish/${APP_NAME}.dll" || (echo "❌ Missing publish/${APP_NAME}.dll" && exit 1)
 
           cd publish
           zip -r ../app.zip .
           cd ..
+
 
 
 
