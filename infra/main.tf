@@ -210,10 +210,10 @@ data "aws_iam_policy_document" "gha_assume" {
 
     # يقفلها على ريبو + برانش محدد
     condition {
-      test     = "StringLike"
-      variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"]
-    }
+  test     = "StringLike"
+  variable = "token.actions.githubusercontent.com:sub"
+  values   = ["repo:ASV47/codeikoo-web-back:*"]
+}
   }
 }
 
