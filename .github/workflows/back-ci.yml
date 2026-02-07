@@ -34,13 +34,20 @@ jobs:
         run: |
           set -e
 
-          echo "Searching for Web SDK csproj..."
-          PROJECT_PATH="$(grep -RIl --include "*.csproj" 'Microsoft.NET.Sdk.Web' . | head -n 1)"
+          echo "All csproj files:"
+          find . -maxdepth 12 -name "*.csproj" -print
+
+          # اختار مشروع Web فقط
+          PROJECT_PATH="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | head -n 1)"
+
+          # لو عندك أكثر من Web project وعايز Academy.Web تحديدًا:
+          if [ -n "$PROJECT_PATH" ]; then
+            PREF="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | grep -i "Academy.Web" | head -n 1 || true)"
+            if [ -n "$PREF" ]; then PROJECT_PATH="$PREF"; fi
+          fi
 
           if [ -z "$PROJECT_PATH" ]; then
             echo "❌ No Web csproj found (Microsoft.NET.Sdk.Web)."
-            echo "All csproj files:"
-            find . -maxdepth 10 -name "*.csproj" -print
             exit 1
           fi
 

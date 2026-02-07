@@ -212,7 +212,7 @@ namespace Academy.Web
             app.MapControllers();
 
             app.MapHub<MessageHub>("/hubs/message");
-            app.MapGet("/", () => Results.Ok("Academy Backend is running ✅"));
+            app.MapGet("/", () => Results.Ok("Academy API is running ✅"));
             app.MapGet("/health", () => Results.Ok("OK"));
 
 
