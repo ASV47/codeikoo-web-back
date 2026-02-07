@@ -1,0 +1,72 @@
+name: Deploy Backend (.NET) to Elastic Beanstalk
+
+'on':
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-central-1
+  EB_APP_NAME: codeikoo-backend
+  EB_ENV_NAME: codeikoo-backend-prod
+
+  # ✅ عدّل ده لمسار مشروعك الحقيقي
+  PROJECT_PATH: src/YourApi/YourApi.csproj
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore + Publish
+        run: |
+          set -e
+          dotnet restore "${PROJECT_PATH}"
+          dotnet publish "${PROJECT_PATH}" -c Release -o publish
+
+          APP_NAME="$(basename "${PROJECT_PATH}" .csproj)"
+          echo "web: dotnet ${APP_NAME}.dll" > publish/Procfile
+
+          cd publish
+          zip -r ../app.zip .
+          cd ..
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_GHA_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Upload + Deploy
+        run: |
+          set -e
+
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          EB_BUCKET="elasticbeanstalk-${AWS_REGION}-${ACCOUNT_ID}"
+
+          VERSION="${GITHUB_SHA}"
+          KEY="releases/${VERSION}.zip"
+
+          aws s3 mb "s3://${EB_BUCKET}" --region "${AWS_REGION}" || true
+          aws s3 cp app.zip "s3://${EB_BUCKET}/${KEY}"
+
+          aws elasticbeanstalk create-application-version \
+            --application-name "${EB_APP_NAME}" \
+            --version-label "${VERSION}" \
+            --source-bundle S3Bucket="${EB_BUCKET}",S3Key="${KEY}"
+
+          aws elasticbeanstalk update-environment \
+            --environment-name "${EB_ENV_NAME}" \
+            --version-label "${VERSION}"
