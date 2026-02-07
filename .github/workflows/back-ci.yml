@@ -29,26 +29,18 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Find project + Publish
+      - name: Find Web csproj + Publish
         shell: bash
         run: |
           set -e
 
-          echo "Listing csproj files..."
-          find . -maxdepth 6 -name "*.csproj" -print
-
-          # حاول يلاقي مشروع Web (غالباً Api/Web/Host/Presentation)
-          PROJECT_PATH="$(find . -maxdepth 8 -name "*.csproj" \
-            | grep -Ei "(api|web|host|presentation)" \
-            | head -n 1)"
-
-          # لو ما لقيش، خد أول csproj
-          if [ -z "$PROJECT_PATH" ]; then
-            PROJECT_PATH="$(find . -maxdepth 8 -name "*.csproj" | head -n 1)"
-          fi
+          echo "Searching for Web SDK csproj..."
+          PROJECT_PATH="$(grep -RIl --include "*.csproj" 'Microsoft.NET.Sdk.Web' . | head -n 1)"
 
           if [ -z "$PROJECT_PATH" ]; then
-            echo "❌ No .csproj found in repo"
+            echo "❌ No Web csproj found (Microsoft.NET.Sdk.Web)."
+            echo "All csproj files:"
+            find . -maxdepth 10 -name "*.csproj" -print
             exit 1
           fi
 
@@ -63,6 +55,7 @@ jobs:
           cd publish
           zip -r ../app.zip .
           cd ..
+
 
 
       - name: Configure AWS credentials (OIDC)
