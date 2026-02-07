@@ -29,18 +29,41 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Restore + Publish
+      - name: Find project + Publish
+        shell: bash
         run: |
           set -e
-          dotnet restore "${PROJECT_PATH}"
-          dotnet publish "${PROJECT_PATH}" -c Release -o publish
 
-          APP_NAME="$(basename "${PROJECT_PATH}" .csproj)"
+          echo "Listing csproj files..."
+          find . -maxdepth 6 -name "*.csproj" -print
+
+          # حاول يلاقي مشروع Web (غالباً Api/Web/Host/Presentation)
+          PROJECT_PATH="$(find . -maxdepth 8 -name "*.csproj" \
+            | grep -Ei "(api|web|host|presentation)" \
+            | head -n 1)"
+
+          # لو ما لقيش، خد أول csproj
+          if [ -z "$PROJECT_PATH" ]; then
+            PROJECT_PATH="$(find . -maxdepth 8 -name "*.csproj" | head -n 1)"
+          fi
+
+          if [ -z "$PROJECT_PATH" ]; then
+            echo "❌ No .csproj found in repo"
+            exit 1
+          fi
+
+          echo "✅ Using PROJECT_PATH=$PROJECT_PATH"
+
+          dotnet restore "$PROJECT_PATH"
+          dotnet publish "$PROJECT_PATH" -c Release -o publish
+
+          APP_NAME="$(basename "$PROJECT_PATH" .csproj)"
           echo "web: dotnet ${APP_NAME}.dll" > publish/Procfile
 
           cd publish
           zip -r ../app.zip .
           cd ..
+
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
