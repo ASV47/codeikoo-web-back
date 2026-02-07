@@ -180,7 +180,15 @@ namespace Academy.Web
 
             
 
-            await Objects.SeedDataAsync();
+           try
+               {
+                     await Objects.SeedDataAsync();
+                                                       }
+              catch (Exception ex)
+                                      {
+    app.Logger.LogError(ex, "SeedData failed (app will continue running).");
+                                                     }
+
 
             
             // Middleware

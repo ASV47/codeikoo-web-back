@@ -29,18 +29,16 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Find WEB csproj + Publish (hard fail if not Web)
+      - name: Find WEB csproj + Publish (guaranteed DLL name)
         shell: bash
         run: |
           set -e
 
-          echo "== Listing csproj =="
+          echo "== csproj files =="
           find . -maxdepth 12 -name "*.csproj" -print
 
-          # ✅ لازم يكون Microsoft.NET.Sdk.Web
+          # لازم Web SDK
           WEB_CSPROJ="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | head -n 1)"
-
-          # لو عندك أكتر من Web project، فضّل Academy.Web لو موجود
           PREF="$(grep -RIl --include "*.csproj" "Microsoft.NET.Sdk.Web" . | grep -i "Academy.Web" | head -n 1 || true)"
           if [ -n "$PREF" ]; then WEB_CSPROJ="$PREF"; fi
 
@@ -54,14 +52,21 @@ jobs:
           dotnet restore "$WEB_CSPROJ"
           dotnet publish "$WEB_CSPROJ" -c Release -o publish
 
-          APP_NAME="$(basename "$WEB_CSPROJ" .csproj)"
-          echo "web: dotnet ${APP_NAME}.dll" > publish/Procfile
-
-          echo "== Publish output =="
+          echo "== publish output (first 200) =="
           ls -la publish | head -n 200
 
-          # ✅ تأكيد إن الـ DLL موجود
-          test -f "publish/${APP_NAME}.dll" || (echo "❌ Missing publish/${APP_NAME}.dll" && exit 1)
+          # ✅ استخرج اسم التطبيق الحقيقي من runtimeconfig
+          RUNTIMECONFIG="$(ls publish/*.runtimeconfig.json | head -n 1)"
+          if [ -z "$RUNTIMECONFIG" ]; then
+            echo "❌ No runtimeconfig found in publish output"
+            exit 1
+          fi
+
+          APP_NAME="$(basename "$RUNTIMECONFIG" .runtimeconfig.json)"
+          echo "✅ Detected APP_NAME=$APP_NAME"
+
+          # ✅ Procfile يشغل الـ DLL الحقيقي + يربط على 0.0.0.0:5000
+          echo "web: dotnet ${APP_NAME}.dll --urls http://0.0.0.0:5000" > publish/Procfile
 
           cd publish
           zip -r ../app.zip .
