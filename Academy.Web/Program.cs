@@ -203,7 +203,7 @@ namespace Academy.Web
             });
 
             app.UseStaticFiles();
-            app.UseHttpsRedirection();
+        
 
             // ✅ Important order
             app.UseAuthentication();
