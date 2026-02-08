@@ -114,7 +114,7 @@ namespace Academy.Web
 
             builder.Services.Configure<DataProtectionTokenProviderOptions>(opt =>
             {
-                opt.TokenLifespan = TimeSpan.FromHours(2);
+                opt.TokenLifespan = TimeSpan.FromDays(30);
             });
 
             builder.Services.AddCors(options =>
@@ -180,15 +180,7 @@ namespace Academy.Web
 
             
 
-           try
-               {
-                     await Objects.SeedDataAsync();
-                                                       }
-              catch (Exception ex)
-                                      {
-    app.Logger.LogError(ex, "SeedData failed (app will continue running).");
-                                                     }
-
+            await Objects.SeedDataAsync();
 
             
             // Middleware
@@ -211,7 +203,7 @@ namespace Academy.Web
             });
 
             app.UseStaticFiles();
-        
+            app.UseHttpsRedirection();
 
             // ✅ Important order
             app.UseAuthentication();
@@ -220,9 +212,6 @@ namespace Academy.Web
             app.MapControllers();
 
             app.MapHub<MessageHub>("/hubs/message");
-            app.MapGet("/", () => Results.Ok("Academy API is running ✅"));
-            app.MapGet("/health", () => Results.Ok("OK"));
-
 
             app.Run();
         }
