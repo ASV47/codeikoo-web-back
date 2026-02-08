@@ -13,7 +13,7 @@ permissions:
 env:
   AWS_REGION: eu-central-1
   EB_APP_NAME: codeikoo-backend
-  EB_ENV_NAME: codeikoo-backend-prod
+  EB_ENV_NAME: codeikoo-backend-dotnet-prod
 
   PROJECT_PATH: Codeikoo-ServerSide/Academy.Application/Academy.Application.csproj
 
